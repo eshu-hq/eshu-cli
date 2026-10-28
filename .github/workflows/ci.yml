@@ -17,6 +17,8 @@ on:
       - main
   pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1'
 
 permissions:
   contents: read
@@ -28,6 +30,8 @@ concurrency:
 env:
   GO_VERSION: "1.27.2"
   GOLANGCI_LINT_VERSION: v2.12.2
+  GOVULNCHECK_VERSION: v1.9.0
+  GOSEC_VERSION: v2.30.0
 
 jobs:
   changes:
@@ -224,9 +228,93 @@ jobs:
           BINARY="$(go env GOPATH)/bin/actionlint"
           "$BINARY"
 
+  govulncheck:
+    name: govulncheck (vulnerability scan)
+    needs: changes
+    if: needs.changes.outputs.deps == 'true' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        if: hashFiles('go.mod') != ''
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Install govulncheck
+        if: hashFiles('go.mod') != ''
+        run: go install golang.org/x/vuln/cmd/govulncheck@${{ env.GOVULNCHECK_VERSION }}
+      - name: govulncheck scan
+        if: hashFiles('go.mod') != ''
+        run: |
+          "$(go env GOPATH)/bin/govulncheck" ./...
+      - name: No Go module yet, scan skips
+        if: hashFiles('go.mod') == ''
+        run: |
+          echo "No go.mod: govulncheck skips with success until Go code lands."
+      - name: Open or update a tracking issue on findings
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          title="govulncheck findings on ${{ github.ref_name }}"
+          body="govulncheck failed on run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Triage findings in the open; no blanket exclusions."
+          existing=$(gh issue list --search "$title" --state open --json number --jq -r '.[0].number // empty')
+          if [ -z "$existing" ]; then
+            gh issue create --title "$title" --body "$body" --label enhancement
+          else
+            gh issue comment "$existing" --body "$body"
+          fi
+
+  gosec:
+    name: gosec (SARIF, advisory)
+    needs: changes
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || github.event_name == 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          fetch-depth: 0
+      - name: Set up Go
+        if: hashFiles('go.mod') != ''
+        uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache: false
+      - name: Install gosec
+        if: hashFiles('go.mod') != ''
+        run: go install github.com/securego/gosec/v2/cmd/gosec@${{ env.GOSEC_VERSION }}
+      - name: gosec scan to SARIF (advisory until the false-positive rate is measured)
+        if: hashFiles('go.mod') != ''
+        continue-on-error: true
+        run: |
+          "$(go env GOPATH)/bin/gosec" -fmt sarif -out gosec.sarif ./...
+      - name: No Go module yet, scan skips
+        if: hashFiles('go.mod') == ''
+        run: |
+          echo "No go.mod: gosec skips with success until Go code lands."
+      - name: Upload gosec SARIF
+        if: hashFiles('go.mod') != '' && hashFiles('gosec.sarif') != ''
+        uses: github/codeql-action/upload-sarif@4bfa242aa49c5f7c6770b98670d354a7dfac05f8 # v3.39.1
+        with:
+          sarif_file: gosec.sarif
+          category: gosec
+
   ci-complete:
     name: ci-complete (required aggregator)
-    needs: [changes, lint, test, race, shell, workflow-lint]
+    needs: [changes, lint, test, race, shell, workflow-lint, govulncheck, gosec]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -236,7 +324,7 @@ jobs:
       - name: Aggregate lane results
         run: |
           fail=0
-          for lane in changes lint test race shell workflow-lint; do
+          for lane in changes lint test race shell workflow-lint govulncheck gosec; do
             case "$lane" in
               changes) result="${{ needs.changes.result }}" ;;
               lint) result="${{ needs.lint.result }}" ;;
@@ -244,6 +332,8 @@ jobs:
               race) result="${{ needs.race.result }}" ;;
               shell) result="${{ needs.shell.result }}" ;;
               workflow-lint) result="${{ needs.workflow-lint.result }}" ;;
+              govulncheck) result="${{ needs.govulncheck.result }}" ;;
+              gosec) result="${{ needs.gosec.result }}" ;;
             esac
             echo "$lane: $result"
             if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
