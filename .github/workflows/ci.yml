@@ -262,7 +262,9 @@ jobs:
         run: |
           echo "No go.mod: govulncheck skips with success until Go code lands."
       - name: Open or update a tracking issue on findings
-        if: failure()
+        # Fork PRs keep a read-only token: the issue step runs only on
+        # same-repo events (push, schedule, same-repo PRs).
+        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
