@@ -1,0 +1,31 @@
+# Eshu-CLI golangci-lint configuration.
+#
+# Pinned to golangci-lint v2.12.2, the same version Eshu uses
+# (see .github/workflows/ci.yml GOLANGCI_LINT_VERSION).
+# Org lint set from eshu-hq/eshu-cli#1: govet, staticcheck, ineffassign,
+# unused, errcheck, gosimple; formatter gofumpt.
+#
+# No exclusions: lint runs on the whole repo with no --new-from-rev and
+# no baseline files. Any future exclusion needs a reason and a linked
+# open issue on the same lines.
+
+version: "2"
+
+linters:
+  # Opt in explicitly so a vendor default can never silently add a
+  # linter the repo has not reviewed.
+  default: none
+  enable:
+    - govet
+    - staticcheck
+    - ineffassign
+    - unused
+    - errcheck
+    # Note: the epic names gosimple as part of the org set, but
+    # golangci-lint v2.12.2 (the pinned version) removed the standalone
+    # gosimple linter and folds its checks into staticcheck, so naming
+    # it here fails the lane. Tracked in the bootstrap PR body.
+
+formatters:
+  enable:
+    - gofumpt
