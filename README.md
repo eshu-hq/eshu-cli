@@ -24,3 +24,4 @@ Carried from the source inventory and contract; each blocks the reviewed cutover
 - Name, versioning, and discovery of the future core `local-host` entrypoint that would let the retained `graph`/`watch` verbs appear in `eshu-cli`.
 
 Independent release, QA EKS deployment, rollback rehearsal, and production acceptance are also NOT_CHECKED.
+PROBE-DOCS: append one line
