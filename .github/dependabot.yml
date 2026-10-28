@@ -1,19 +1,12 @@
-# Dependabot for eshu-cli: Go modules and GitHub Actions.
+# Dependabot for eshu-cli: GitHub Actions only for now.
 #
 # Part of eshu-hq/eshu-cli#1 (epic). Weekly grouped updates so a single
-# PR carries each ecosystem's bumps. The gomod entry stays quiet until
-# the first go.mod lands.
+# PR carries the ecosystem's bumps. The gomod updater has no go.mod to
+# read yet (its runs fail), so it stays out until the first Go PR lands,
+# when #5 re-adds it next to go.mod.
 
 version: 2
 updates:
-  - package-ecosystem: gomod
-    directory: "/"
-    schedule:
-      interval: weekly
-    groups:
-      go-dependencies:
-        patterns:
-          - "*"
   - package-ecosystem: github-actions
     directory: "/"
     schedule:
