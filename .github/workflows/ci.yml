@@ -266,7 +266,7 @@ jobs:
         run: |
           title="govulncheck findings on ${{ github.ref_name }}"
           body="govulncheck failed on run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Triage findings in the open; no blanket exclusions."
-          existing=$(gh issue list --search "$title" --state open --json number --jq '.[0].number')
+          existing=$(gh issue list --search "$title" --state open --json number --jq -r '.[0].number // empty')
           if [ -z "$existing" ]; then
             gh issue create --title "$title" --body "$body" --label enhancement
           else
