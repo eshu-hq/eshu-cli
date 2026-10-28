@@ -11,11 +11,13 @@ Push and PR runs pick lanes by changed paths (the `changes` job):
 | PR changes | Lanes that run |
 |---|---|
 | Docs only (paths no filter class matches: `**/*.md`, `LICENSE`) | none; `ci-complete` succeeds |
-| Go sources, `go.mod`, `go.sum` | `lint`, `test`, `race` |
+| Go sources, `go.mod`, `go.sum` | `lint`, `test`, `race`, `gosec` |
+| `go.mod`, `go.sum`, `.golangci.yml` | `govulncheck` plus the Go rows above |
 | Fixtures or config tests read | `test` only |
 | Shell scripts (`**/*.sh`) | `shell` only |
 | `Dockerfile`, `.dockerignore` | `image` (lands with the file) |
 | `.github/workflows/**` | `workflow-lint` plus `lint`, `test`, `race` |
+| Weekly schedule (Mondays 06:00 UTC) | `govulncheck`, `gosec` |
 
 Two rules never change: no gate compares the tree against a committed
 count, list, or artifact (the only exception is the 500-line cap on
