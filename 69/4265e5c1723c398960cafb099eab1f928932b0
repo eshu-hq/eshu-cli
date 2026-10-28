@@ -1,0 +1,18 @@
+.github/dependabot.yml
+  h_78a442cba0b3e6 1-24
+.github/workflows/ci.yml
+  h_78a442cba0b3e6 20-21,33-34,231-314,317,327,335-336
+CONTRIBUTING.md
+  h_78a442cba0b3e6 14-15,20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.5",
+  "base_commit_sha": "694265e5c1723c398960cafb099eab1f928932b0",
+  "prompts": {},
+  "humans": {
+    "h_78a442cba0b3e6": {
+      "author": "Allen Sanabria <asanabria6910@gmail.com>"
+    }
+  }
+}
