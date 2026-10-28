@@ -10,7 +10,7 @@ Push and PR runs pick lanes by changed paths (the `changes` job):
 
 | PR changes | Lanes that run |
 |---|---|
-| Docs only (`**/*.md`, `LICENSE`) | none; `ci-complete` succeeds |
+| Docs only (paths no filter class matches: `**/*.md`, `LICENSE`) | none; `ci-complete` succeeds |
 | Go sources, `go.mod`, `go.sum` | `lint`, `test`, `race` |
 | Fixtures or config tests read | `test` only |
 | Shell scripts (`**/*.sh`) | `shell` only |

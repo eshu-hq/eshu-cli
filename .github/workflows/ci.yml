@@ -222,7 +222,7 @@ jobs:
         run: |
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
           BINARY="$(go env GOPATH)/bin/actionlint"
-          "$BINARY" .github/workflows/
+          "$BINARY"
 
   ci-complete:
     name: ci-complete (required aggregator)
@@ -236,8 +236,9 @@ jobs:
       - name: Aggregate lane results
         run: |
           fail=0
-          for lane in lint test race shell workflow-lint; do
+          for lane in changes lint test race shell workflow-lint; do
             case "$lane" in
+              changes) result="${{ needs.changes.result }}" ;;
               lint) result="${{ needs.lint.result }}" ;;
               test) result="${{ needs.test.result }}" ;;
               race) result="${{ needs.race.result }}" ;;
