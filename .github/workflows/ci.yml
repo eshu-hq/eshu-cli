@@ -38,6 +38,8 @@ jobs:
     name: Detect changed paths
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    permissions:
+      contents: read
     outputs:
       go: ${{ steps.filter.outputs.go }}
       deps: ${{ steps.filter.outputs.deps }}
