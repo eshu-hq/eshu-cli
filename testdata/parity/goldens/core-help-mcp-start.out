@@ -1,0 +1,16 @@
+Start the Eshu MCP server
+
+Usage:
+  eshu mcp start [flags]
+
+Flags:
+  -h, --help                    help for start
+      --host string             Host to bind HTTP MCP server (default "0.0.0.0")
+  -p, --port int                Port for HTTP MCP server (default 8080)
+      --profile string          Runtime profile for a new local owner: local_authoritative (default; embedded NornicDB graph for call-graph and Cypher answers) or local_lightweight (Postgres only, no graph). For a Neo4j-backed authoritative owner, set ESHU_QUERY_PROFILE and ESHU_GRAPH_BACKEND instead.
+  -t, --transport string        Transport mode: stdio, http, or sse (default "stdio")
+      --workspace-root string   Explicit workspace root for the local Eshu owner
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

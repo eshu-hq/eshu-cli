@@ -9,7 +9,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/eshu-hq/eshu-cli/internal/envregistry"
+	"github.com/eshu-hq/eshu/sdk/go/apicontract"
 )
 
 // EnvironMap parses os.Environ()-style "KEY=VALUE" pairs into a map. Pairs
@@ -33,7 +33,7 @@ func EnvironMap(pairs []string) map[string]string {
 // strict turns every unrecognized ESHU_* variable into a finding; without it
 // only unknown names that closely resemble a registered one (likely typos) are
 // reported, so collector-owned and site-local variables do not generate noise.
-func ValidateEnv(out io.Writer, registry *envregistry.Registry, env map[string]string, strict bool) error {
+func ValidateEnv(out io.Writer, registry *apicontract.Registry, env map[string]string, strict bool) error {
 	return reportFindings(out, registry.Validate(env, strict))
 }
 
@@ -41,7 +41,7 @@ func ValidateEnv(out io.Writer, registry *envregistry.Registry, env map[string]s
 // non-nil error when any error-level finding is present, so the command exits
 // non-zero. Errors sort ahead of warnings and each group sorts by variable
 // name, so the same environment always produces the same report.
-func reportFindings(out io.Writer, findings []envregistry.Finding) error {
+func reportFindings(out io.Writer, findings []apicontract.Finding) error {
 	if len(findings) == 0 {
 		_, _ = fmt.Fprintln(out, "config validate: OK — no ESHU_* configuration problems found")
 		return nil

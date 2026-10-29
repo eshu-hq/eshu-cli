@@ -1,0 +1,28 @@
+report renders the operator_digest.v1 model for an explicit scope.
+
+This first CLI implementation is an offline presentation path. It validates
+share-safe input, emits deterministic unsupported sections, and points operators
+to bounded follow-up routes without reading graph state, writing graph state,
+claiming reducer work, or calling providers.
+
+Usage:
+  eshu report [flags]
+  eshu report [command]
+
+Available Commands:
+  capture     Capture a share-safe wrong_answer_report.v1 bundle from a query
+  validate    Validate a wrong_answer_report.v1 bundle
+
+Flags:
+      --artifact-out string   Write a shareable operator_digest_artifact.v1 JSON file
+  -h, --help                  help for report
+      --json                  Emit the digest as JSON
+      --profile string        Runtime profile used to derive the digest (default "local_authoritative")
+      --question-limit int    Maximum suggested questions to emit (0-25) (default 8)
+      --scope string          Share-safe scope such as repo:owner/name, service:name, workload:name, environment:name, or project:name
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu report [command] --help" for more information about a command.

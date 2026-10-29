@@ -1,0 +1,23 @@
+List installed components
+
+Usage:
+  eshu component list [flags]
+
+Flags:
+      --allow-id strings                         Allowed component ID
+      --allow-publisher strings                  Allowed component publisher
+      --component-home string                    Component registry home directory
+      --core-version string                      Eshu core version the operator asserts for compatibleCore checks (default: this build's version)
+      --cosign-binary string                     Cosign verifier binary for strict component trust
+  -h, --help                                     help for list
+      --json                                     Write stable JSON output
+      --provenance-certificate-identity string   Expected Sigstore certificate identity for strict component trust
+      --provenance-oidc-issuer string            Expected Sigstore OIDC issuer for strict component trust
+      --provenance-predicate-type string         Cosign attestation predicate type for strict component trust (default "slsaprovenance1")
+      --revoke-id strings                        Revoked component ID
+      --revoke-publisher strings                 Revoked component publisher
+      --trust-mode string                        Component trust mode: disabled, allowlist, or strict
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

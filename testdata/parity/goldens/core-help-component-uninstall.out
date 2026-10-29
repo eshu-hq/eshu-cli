@@ -1,0 +1,14 @@
+Uninstall an inactive component package
+
+Usage:
+  eshu component uninstall <component-id> [flags]
+
+Flags:
+      --component-home string   Component registry home directory
+  -h, --help                    help for uninstall
+      --json                    Write stable JSON output
+      --version string          Component version to uninstall
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

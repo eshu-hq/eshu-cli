@@ -1,0 +1,12 @@
+Verify a component extension index for local or CI publication gates
+
+Usage:
+  eshu component index verify <index> [flags]
+
+Flags:
+  -h, --help   help for verify
+      --json   Write stable JSON output
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

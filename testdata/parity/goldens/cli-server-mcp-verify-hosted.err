@@ -1,0 +1,1 @@
+warning: could not verify auth posture (probe http://127.0.0.1:18091/.well-known/oauth-protected-resource returned no authorization servers); emitting per-user token config. If this deployment uses SSO for MCP, re-run with --auth sso.

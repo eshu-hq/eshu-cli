@@ -1,0 +1,11 @@
+Switch the default database backend
+
+Usage:
+  eshu config db <backend> [flags]
+
+Flags:
+  -h, --help   help for db
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,0 +1,2 @@
+demo.ext@0.2.0 states=quarantined
+  policy=deny reason=revoked

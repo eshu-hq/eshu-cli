@@ -12,10 +12,6 @@ import (
 )
 
 // printTable renders a simple table to stdout.
-//
-// Tier-2/3 callers land with later tiers (eshu-hq/eshu#8874).
-//
-//nolint:unused // Tier-1 freeze keeps the shared output contract whole;
 func printTable(headers []string, rows [][]string) {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 2, ' ', 0)
 	_, _ = fmt.Fprintln(w, strings.Join(headers, "\t"))
@@ -40,10 +36,6 @@ func printError(msg string) {
 }
 
 // printSuccess prints a success message.
-//
-// Tier-2/3 callers land with later tiers (eshu-hq/eshu#8874).
-//
-//nolint:unused // Tier-1 freeze keeps the shared output contract whole;
 func printSuccess(msg string) {
 	fmt.Printf("OK %s\n", msg)
 }
@@ -52,9 +44,6 @@ func printSuccess(msg string) {
 // warning does not indicate command failure -- `eshu mcp setup`'s
 // auto-detected posture fallback uses this to tell the operator detection
 // could not be positively confirmed while still emitting a working config.
-// Tier-2/3 callers land with later tiers (eshu-hq/eshu#8874).
-//
-//nolint:unused // Tier-1 freeze keeps the shared output contract whole;
 func printWarning(msg string) {
 	fmt.Fprintf(os.Stderr, "warning: %s\n", msg)
 }

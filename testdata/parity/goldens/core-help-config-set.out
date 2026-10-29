@@ -1,0 +1,11 @@
+Set one configuration value
+
+Usage:
+  eshu config set <key> <value> [flags]
+
+Flags:
+  -h, --help   help for set
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

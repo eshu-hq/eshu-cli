@@ -1,0 +1,15 @@
+Run component extension conformance fixtures
+
+Usage:
+  eshu component conform <manifest> [flags]
+
+Flags:
+      --component-home string   Component registry home directory
+      --fixture strings         Collector SDK result fixture JSON file; repeat for multiple fixtures
+  -h, --help                    help for conform
+      --json                    Write stable JSON output
+      --mode string             Conformance mode: fixture or compose (default "fixture")
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

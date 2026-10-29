@@ -1,0 +1,1 @@
+{"data": {"count": 1, "total_count": 1, "limit": 100, "truncated": false, "components": [{"id": "demo.ext", "version": "0.1.0", "states": ["active"]}]}, "truth": {"freshness": {"state": "fresh"}}, "error": null}

@@ -1,0 +1,1 @@
+--endpoint cannot be parsed as a URL, so it cannot be checked for an embedded credential; pass a plain path or tool name

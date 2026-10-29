@@ -1,0 +1,11 @@
+List available MCP tools
+
+Usage:
+  eshu mcp tools [flags]
+
+Flags:
+  -h, --help   help for tools
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

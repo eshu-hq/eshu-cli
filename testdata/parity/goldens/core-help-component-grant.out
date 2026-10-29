@@ -1,0 +1,18 @@
+Record a core-issued producer grant for a core-owned fact kind
+
+Usage:
+  eshu component grant <producer-id> [flags]
+
+Flags:
+      --component-home string    Component registry home directory
+      --expires-in duration      Grant lifetime from issuance, for example 720h
+  -h, --help                     help for grant
+      --json                     Write stable JSON output
+      --kind string              Core-owned fact kind the producer may emit
+      --schema-version strings   Covered fact schema version; repeat for multiple versions
+      --scope string             Source scope the grant is valid for
+      --version string           Granted manifest version to bind
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,16 +1,18 @@
 #!/bin/bash
-# Tier-1 parity over the populated CLI (Refs eshu-hq/eshu#8874).
+# Tier-1/Tier-2 parity over the populated CLI (Refs eshu-hq/eshu#8874).
 #
 #   scripts/check-tier1-parity.sh check              # build dest, diff vs goldens
 #   scripts/check-tier1-parity.sh capture-core BIN   # capture core-side goldens
 #   scripts/check-tier1-parity.sh capture-cli        # capture dest-pinned goldens
 #
 # Goldens live in testdata/parity/goldens/<case>.{out,err,exit}. Cases whose
-# name starts with "core-" hold core CLI bytes at the pinned core SHA
-# (73418463ed, S1 merged): the destination must reproduce stdout, stderr and
-# exit code byte-for-byte. Cases starting with "cli-" pin sanctioned diffs:
-# the E3 stub set, the E4 index discovery contract, and root help without the
-# RUNTIME launchers (the E5 per-family help deltas).
+# name starts with "core-" hold core CLI bytes at the Tier-2 pin
+# (78c5b3d1a4; Tier-1 families were re-captured there and must be unchanged).
+# The destination must reproduce stdout, stderr and exit code byte-for-byte.
+# Cases starting with "cli-" pin sanctioned diffs: the E3 stub set (shrunk by
+# Tier-2), the E4 index discovery contract, root help without the RUNTIME
+# launchers, the Tier-2 verify/config-reference outputs (the E5 per-family
+# help deltas), and the local-verify tools fail-closed behavior.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -20,6 +22,9 @@ PORT=18091
 
 # help cases: "<case-suffix> <args...>" (--help appended by the runner).
 # Root help is NOT here: it is a cli-pinned sanctioned diff.
+# Tier-2 adds the populated families plus the kept core surface of the
+# partially-thin component and mcp parents (local verbs keep core Use/Short/
+# flags with a stub body, so parent and per-verb help match byte-for-byte).
 HELP_CASES=(
   "query query" "list list" "stats stats" "index-status index-status"
   "index index" "change change" "change-impact change impact"
@@ -32,6 +37,24 @@ HELP_CASES=(
   "ecosystem-overview ecosystem overview" "find find" "find-name find name"
   "analyze analyze" "analyze-calls analyze calls" "neo4j neo4j"
   "neo4j-setup neo4j setup" "version version" "completion completion"
+  "report report" "report-capture report capture" "report-validate report validate"
+  "config config" "config-show config show" "config-set config set"
+  "config-reset config reset" "config-db config db" "config-validate config validate"
+  "service-report service-report"
+  "answer-quality-scorecard answer-quality-scorecard"
+  "component component" "component-inventory component inventory"
+  "component-diagnostics component diagnostics" "component-inspect component inspect"
+  "component-verify component verify" "component-install component install"
+  "component-list component list" "component-enable component enable"
+  "component-disable component disable" "component-uninstall component uninstall"
+  "component-conform component conform" "component-init component init"
+  "component-init-collector component init collector" "component-index component index"
+  "component-index-verify component index verify"
+  "component-extraction-readiness component extraction-readiness"
+  "component-schema-versions component schema-versions"
+  "component-grant component grant" "component-revoke-grant component revoke-grant"
+  "component-grants component grants"
+  "mcp mcp" "mcp-setup mcp setup" "mcp-tools mcp tools" "mcp-start mcp start"
 )
 # server cases: "<case-suffix> <expected-exit> <args...>"
 SERVER_CASES=(
@@ -63,6 +86,19 @@ SERVER_CASES=(
   "map-501 6 map --from HOSTILE_501 --json"
   "change-404 2 change impact --repo-id r --file HOSTILE_404 --json"
   "freshness-503 1 freshness generations --scope-id HOSTILE_503 --json"
+  "report-capture 0 report capture --endpoint /api/v0/q --params {\"x\":\"1\"} --note parity"
+  "report-validate-pass 0 report validate --from testdata/parity/inputs/bundle-pass.json"
+  "report-validate-strict 0 report validate --from testdata/parity/inputs/bundle-pass.json --require-public"
+  "report-validate-fail 1 report validate --from testdata/parity/inputs/bundle-fail.json"
+  "service-report 0 service-report --from testdata/parity/inputs/dossier.json"
+  "service-report-json 0 service-report --from testdata/parity/inputs/dossier.json --json"
+  "service-report-supply 0 service-report --from testdata/parity/inputs/dossier.json --supply-chain-from testdata/parity/inputs/supply.json"
+  "scorecard-pass 0 answer-quality-scorecard --from testdata/parity/inputs/evidence-pass.json"
+  "scorecard-pass-json 0 answer-quality-scorecard --from testdata/parity/inputs/evidence-pass.json --json"
+  "scorecard-fail 1 answer-quality-scorecard --from testdata/parity/inputs/evidence-fail.json"
+  "component-inventory 0 component inventory"
+  "component-inventory-json 0 component inventory --json"
+  "component-diagnostics 0 component diagnostics demo.ext"
 )
 # local cases (no server): "<case-suffix> <expected-exit> <args...>"
 LOCAL_CASES=(
@@ -72,12 +108,31 @@ LOCAL_CASES=(
   "trace-no-name 1 trace service"
   "trace-empty-name 2 trace service __EMPTY__"
   "playbooks-bad-input 1 playbooks resolve pb --input badinput"
+  "report-no-endpoint 2 report capture"
+  "report-credential 2 report capture --endpoint https://svc:C4N4RY@example.com/api"
+  "report-bad-endpoint 2 report capture --endpoint ::::::"
+  "report-bad-params 1 report capture --endpoint /api/v0/q --params {bad"
+  "report-bad-method 1 report capture --endpoint /api/v0/q --method PUT"
+  "report-digest-no-scope 1 report"
+  "report-digest 0 report --scope repo:demo/app"
+  "report-digest-json 0 report --scope repo:demo/app --json"
+  "service-report-no-input 1 service-report"
+  "service-report-bad-json 1 service-report --from testdata/parity/inputs/bad.json"
+  "component-inspect-arg 1 component inspect"
+  "component-enable-arg 1 component enable"
+  "component-grants-arg 1 component grants extra"
+  "mcp-setup-print 0 mcp setup --platform generic"
+  "mcp-setup-hosted 0 mcp setup --platform generic --hosted --auth token --service-url http://127.0.0.1:18091"
+  "mcp-tools 0 mcp tools"
 )
-# E3 stub cases (exit 1): top-level names
+# E3 stub cases (exit 1): top-level names. Tier-2 shrinks the set: report,
+# service-report, mcp, m, config, component, and answer-quality-scorecard are
+# thin now. investigation stays: its packet build is truth assembly in the
+# query closure with no build endpoint, so copying it would fork truth.
 STUB_CASES=(
-  report investigation mcp m config component scan vuln-scan
-  service-report docs demo demo-benchmark first-run first-run-benchmark
-  hosted-setup hosted-onboard assistant answer-quality-scorecard
+  investigation scan vuln-scan
+  docs demo demo-benchmark first-run first-run-benchmark
+  hosted-setup hosted-onboard assistant
   competitive-parity evidence evidence-packet-dogfood workspace graph
   watch w admin doctor install
 )
@@ -102,6 +157,21 @@ stop_server() {
   pkill -f "stub-server.py $PORT" || true
 }
 
+# Per-case extra environment, assigned by the config/verify runners before
+# calling run_one and cleared after. Empty by default; run_one prefixes the
+# invocation with `env` plus these assignments so cases can pin ESHU_* input
+# without touching the ambient environment.
+EXTRA_ENV=()
+
+# canon_capture normalizes the capture bundle's wall-clock fields. Capture
+# stamps created_at at run time, and bundle_id is a digest over the bundle
+# including created_at, so core and dest goldens for the same fixed input
+# differ in exactly those two fields by design; everything else (including
+# the content digest data_digest and the full response echo) must match.
+canon_capture() {
+  sed -i -E -e 's/"created_at": "[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z"/"created_at": "CAPTURED_AT"/' -e 's/"bundle_id": "[0-9a-f]{64}"/"bundle_id": "BUNDLE_ID"/' "$1"
+}
+
 # run_one BIN PREFIX SUFFIX EXPECTED_EXIT -- ARGS...
 run_one() {
   local bin="$1" prefix="$2" suffix="$3" want="$4"
@@ -118,9 +188,12 @@ run_one() {
   set -- "${translated[@]}"
   if [ "$MODE" = capture ]; then
     set +e
-    "$bin" "$@" >"$out" 2>"$errf"
+    env "${EXTRA_ENV[@]}" "$bin" "$@" >"$out" 2>"$errf"
     echo -n "$?" >"$exitf"
     set -e
+    case "$suffix" in
+      *report-capture*) canon_capture "$out" ;;
+    esac
     if [ "$(cat "$exitf")" != "$want" ]; then
       echo "NOTE: $name exited $(cat "$exitf"), want $want"
     fi
@@ -130,9 +203,12 @@ run_one() {
   tmp_o="$(mktemp)"
   tmp_e="$(mktemp)"
   set +e
-  "$bin" "$@" >"$tmp_o" 2>"$tmp_e"
+  env "${EXTRA_ENV[@]}" "$bin" "$@" >"$tmp_o" 2>"$tmp_e"
   got="$?"
   set -e
+  case "$suffix" in
+    *report-capture*) canon_capture "$tmp_o" ;;
+  esac
   if [ "$got" != "$want" ]; then
     echo "FAIL(exit): $name got $got want $want"
     echo "--- stdout ---"; cat "$tmp_o"
@@ -253,6 +329,43 @@ capture_e4() {
   rm -f "$tmp_o" "$tmp_e"
 }
 
+# Tier-2 config cases run in a clean room (env -i): `config validate` reads
+# the ambient process environment, so the golden must not depend on whatever
+# ESHU_* the operator happens to export. The reference case pins the
+# published client table the thin command validates against.
+capture_config() {
+  local bin="$1" prefix="$2"
+  EXTRA_ENV=(-i)
+  run_one "$bin" "$prefix" "local-config-validate-ok" 0 config validate
+  EXTRA_ENV=(-i ESHU_MCP_TRANSPORT=http ESHU_QUERY_PROFILE=production ESHU_MCP_TRANSPOR=http)
+  run_one "$bin" "$prefix" "local-config-validate-fixture" 0 config validate
+  EXTRA_ENV=(-i ESHU_SITE_LOCAL_EXPERIMENT=1)
+  run_one "$bin" "$prefix" "local-config-validate-strict" 0 config validate --strict
+  EXTRA_ENV=()
+}
+
+# Tier-2 reference output is dest-pinned: the thin command prints the
+# published client table while the core binary prints the full platform
+# table, by S2 design (the CLI validates exactly the variables it owns).
+capture_reference() {
+  local bin="$1" prefix="$2"
+  EXTRA_ENV=(-i)
+  run_one "$bin" "$prefix" "local-config-reference" 0 config validate --reference
+  EXTRA_ENV=()
+}
+
+# Tier-2 hosted verify is dest-pinned (cli goldens): the tools-visible stage
+# reports the deployment's advertised count while the core binary reports its
+# embedded build count, so the two can never match byte-for-byte. Everything
+# else about the run (stage markers, structure, exit 0) is pinned here; the
+# shared stage mechanics stay covered by unit tests.
+capture_verify() {
+  local bin="$1" prefix="$2"
+  EXTRA_ENV=(ESHU_MCP_TOKEN=parity-token)
+  run_one "$bin" "$prefix" "server-mcp-verify-hosted" 0 mcp setup --platform generic --hosted --verify --service-url "http://127.0.0.1:$PORT"
+  EXTRA_ENV=()
+}
+
 MODE=check
 FAIL=0
 CMD="${1:-check}"
@@ -267,6 +380,7 @@ case "$CMD" in
     trap stop_server EXIT
     capture_server "$BIN" core
     capture_local "$BIN" core
+    capture_config "$BIN" core
     ;;
   capture-cli)
     MODE=capture
@@ -276,6 +390,10 @@ case "$CMD" in
     run_one "$BIN" cli "help-root" 0 --help
     capture_stubs "$BIN" cli
     capture_e4 "$BIN" cli
+    capture_reference "$BIN" cli
+    start_server
+    trap stop_server EXIT
+    capture_verify "$BIN" cli
     ;;
   check)
     isolate_home
@@ -283,10 +401,13 @@ case "$CMD" in
     BIN="$GOLDENS/.cli-eshu"
     capture_help "$BIN" core
     run_one "$BIN" cli "help-root" 0 --help
+    capture_reference "$BIN" cli
     start_server
     trap stop_server EXIT
     capture_server "$BIN" core
     capture_local "$BIN" core
+    capture_config "$BIN" core
+    capture_verify "$BIN" cli
     capture_stubs "$BIN" cli
     capture_e4 "$BIN" cli
     if [ "$FAIL" != 0 ]; then

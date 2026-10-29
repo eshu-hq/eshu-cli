@@ -1,0 +1,11 @@
+Reset all configuration to defaults
+
+Usage:
+  eshu config reset [flags]
+
+Flags:
+  -h, --help   help for reset
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

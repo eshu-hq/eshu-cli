@@ -1,0 +1,32 @@
+Manage optional Eshu components
+
+Usage:
+  eshu component [command]
+
+Available Commands:
+  conform              Run component extension conformance fixtures
+  diagnostics          Read component extension diagnostics through the configured API
+  disable              Disable an installed component instance
+  enable               Enable an installed component instance
+  extraction-readiness Explain whether a collector is keep-in-tree, an extraction candidate, blocked, or external-ready
+  grant                Record a core-issued producer grant for a core-owned fact kind
+  grants               List recorded producer grants
+  index                Manage component extension index metadata
+  init                 Scaffold a new component package
+  inspect              Inspect a component package manifest
+  install              Install a verified local component package manifest
+  inventory            List component extensions through the configured API
+  list                 List installed components
+  revoke-grant         Revoke a recorded producer grant so emissions fail closed
+  schema-versions      List core fact-kind schema versions or classify a collector fact version
+  uninstall            Uninstall an inactive component package
+  verify               Verify a component package manifest against local trust policy
+
+Flags:
+  -h, --help   help for component
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu component [command] --help" for more information about a command.

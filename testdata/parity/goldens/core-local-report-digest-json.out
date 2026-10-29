@@ -1,0 +1,209 @@
+{
+  "schema": "operator_digest.v1",
+  "scope": {
+    "type": "repository",
+    "label": "demo/app",
+    "id": "repo:demo/app"
+  },
+  "profile": "local_authoritative",
+  "truth": {
+    "truth_class": "unsupported",
+    "freshness": "unavailable",
+    "authority": "none",
+    "reason": "bounded_read_surface_not_connected"
+  },
+  "sections": [
+    {
+      "id": "hub_services",
+      "title": "Hub Services",
+      "status": "unsupported",
+      "entries": [],
+      "limitations": [
+        {
+          "id": "operator_digest.v1:limitation:hub_services:repo:demo/app",
+          "scope": "repo:demo/app",
+          "reason": "unsupported_section",
+          "detail": "Section hub_services requires a bounded read surface that is not connected in the offline CLI renderer."
+        }
+      ],
+      "source_refs": [
+        "cli:eshu-report",
+        "doc:operator-digest-contract"
+      ],
+      "truncated": false
+    },
+    {
+      "id": "cross_domain_connections",
+      "title": "Cross-Domain Connections",
+      "status": "unsupported",
+      "entries": [],
+      "limitations": [
+        {
+          "id": "operator_digest.v1:limitation:cross_domain_connections:repo:demo/app",
+          "scope": "repo:demo/app",
+          "reason": "unsupported_section",
+          "detail": "Section cross_domain_connections requires a bounded read surface that is not connected in the offline CLI renderer."
+        }
+      ],
+      "source_refs": [
+        "cli:eshu-report",
+        "doc:operator-digest-contract"
+      ],
+      "truncated": false
+    },
+    {
+      "id": "ambiguity_review_queue",
+      "title": "Ambiguity Review Queue",
+      "status": "unsupported",
+      "entries": [],
+      "limitations": [
+        {
+          "id": "operator_digest.v1:limitation:ambiguity_review_queue:repo:demo/app",
+          "scope": "repo:demo/app",
+          "reason": "unsupported_section",
+          "detail": "Section ambiguity_review_queue requires a bounded read surface that is not connected in the offline CLI renderer."
+        }
+      ],
+      "source_refs": [
+        "cli:eshu-report",
+        "doc:operator-digest-contract"
+      ],
+      "truncated": false
+    },
+    {
+      "id": "freshness_and_drift",
+      "title": "Freshness And Drift",
+      "status": "unsupported",
+      "entries": [],
+      "limitations": [
+        {
+          "id": "operator_digest.v1:limitation:freshness_and_drift:repo:demo/app",
+          "scope": "repo:demo/app",
+          "reason": "unsupported_section",
+          "detail": "Section freshness_and_drift requires a bounded read surface that is not connected in the offline CLI renderer."
+        }
+      ],
+      "source_refs": [
+        "cli:eshu-report",
+        "doc:operator-digest-contract"
+      ],
+      "truncated": false
+    },
+    {
+      "id": "unmanaged_or_orphaned_resources",
+      "title": "Unmanaged Or Orphaned Resources",
+      "status": "unsupported",
+      "entries": [],
+      "limitations": [
+        {
+          "id": "operator_digest.v1:limitation:unmanaged_or_orphaned_resources:repo:demo/app",
+          "scope": "repo:demo/app",
+          "reason": "unsupported_section",
+          "detail": "Section unmanaged_or_orphaned_resources requires a bounded read surface that is not connected in the offline CLI renderer."
+        }
+      ],
+      "source_refs": [
+        "cli:eshu-report",
+        "doc:operator-digest-contract"
+      ],
+      "truncated": false
+    }
+  ],
+  "suggested_questions": [
+    {
+      "id": "operator_digest.v1:question:ambiguity_review_queue:repo:demo/app",
+      "question": "Which missing or ambiguous evidence should be resolved before acting on this scope?",
+      "source_signal": "operator_digest.v1:limitation:ambiguity_review_queue:repo:demo/app",
+      "why": "unsupported section ambiguity_review_queue produced source signal operator_digest.v1:limitation:ambiguity_review_queue:repo:demo/app",
+      "reason": "missing_evidence_review",
+      "target": "query-playbook:documentation-truth",
+      "arguments": {
+        "profile": "local_authoritative",
+        "scope": "demo/app"
+      },
+      "truth_expectation": "semantic_observation",
+      "evidence_refs": []
+    },
+    {
+      "id": "operator_digest.v1:question:freshness_and_drift:repo:demo/app",
+      "question": "Is the current scope fresh enough for an operator decision?",
+      "source_signal": "operator_digest.v1:limitation:freshness_and_drift:repo:demo/app",
+      "why": "unsupported section freshness_and_drift produced source signal operator_digest.v1:limitation:freshness_and_drift:repo:demo/app",
+      "reason": "freshness_recovery",
+      "target": "route:/api/v0/status/pipeline",
+      "arguments": {
+        "profile": "local_authoritative",
+        "scope": "demo/app"
+      },
+      "truth_expectation": "deterministic",
+      "evidence_refs": []
+    },
+    {
+      "id": "operator_digest.v1:question:hub_services:repo:demo/app",
+      "question": "Which service story should be built first for this scope?",
+      "source_signal": "operator_digest.v1:limitation:hub_services:repo:demo/app",
+      "why": "unsupported section hub_services produced source signal operator_digest.v1:limitation:hub_services:repo:demo/app",
+      "reason": "hub_service_drilldown",
+      "target": "mcp:get_service_story",
+      "arguments": {
+        "profile": "local_authoritative",
+        "scope": "demo/app"
+      },
+      "truth_expectation": "deterministic",
+      "evidence_refs": []
+    },
+    {
+      "id": "operator_digest.v1:question:cross_domain_connections:repo:demo/app",
+      "question": "Which code-to-cloud connection needs citation evidence for this scope?",
+      "source_signal": "operator_digest.v1:limitation:cross_domain_connections:repo:demo/app",
+      "why": "unsupported section cross_domain_connections produced source signal operator_digest.v1:limitation:cross_domain_connections:repo:demo/app",
+      "reason": "cross_domain_citation",
+      "target": "mcp:build_evidence_citation_packet",
+      "arguments": {
+        "profile": "local_authoritative",
+        "scope": "demo/app"
+      },
+      "truth_expectation": "deterministic",
+      "evidence_refs": []
+    },
+    {
+      "id": "operator_digest.v1:question:unmanaged_or_orphaned_resources:repo:demo/app",
+      "question": "Which runtime resource needs an ownership investigation for this scope?",
+      "source_signal": "operator_digest.v1:limitation:unmanaged_or_orphaned_resources:repo:demo/app",
+      "why": "unsupported section unmanaged_or_orphaned_resources produced source signal operator_digest.v1:limitation:unmanaged_or_orphaned_resources:repo:demo/app",
+      "reason": "ownership_investigation",
+      "target": "query-playbook:supply-chain-impact",
+      "arguments": {
+        "profile": "local_authoritative",
+        "scope": "demo/app"
+      },
+      "truth_expectation": "semantic_observation",
+      "evidence_refs": []
+    }
+  ],
+  "limitations": [
+    {
+      "id": "operator_digest.v1:limitation:read_surface:repo:demo/app",
+      "scope": "repo:demo/app",
+      "reason": "bounded_read_surface_not_connected",
+      "detail": "The CLI digest renderer validates the contract but has not connected live bounded read surfaces in this slice."
+    }
+  ],
+  "source_refs": [
+    {
+      "id": "cli:eshu-report",
+      "kind": "cli_command",
+      "name": "eshu report"
+    },
+    {
+      "id": "doc:operator-digest-contract",
+      "kind": "documentation",
+      "name": "operator digest contract"
+    },
+    {
+      "id": "profile:local_authoritative",
+      "kind": "runtime_profile",
+      "name": "local_authoritative"
+    }
+  ]
+}

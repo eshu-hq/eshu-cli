@@ -1,0 +1,18 @@
+Answer-quality scorecard FAILED
+  run   : parity-fail
+  score : 55
+--------------------------------------------
+  [ok] family_coverage: all major answer families captured
+  [ok] usefulness: all captured prompts passed
+  [!!] truth_honesty: service_story: api result missing truth class
+  [!!] citation_coverage: service_story: api result has no citation handles
+  [!!] boundedness: service_story: api partial/truncated result has no limitation or continuation
+  [ok] narration_fallback: all captured prompts passed
+  [ok] parity: all captured prompts passed
+  [!!] follow_up_usefulness: service_story: api partial/truncated result has no next call
+  [ok] publish_safety: all captured prompts passed
+follow-up issues:
+  - Fix truth_honesty answer-quality score for service_story [answer:dogfood, answer:mcp, capability:answer-experience]
+  - Fix citation_coverage answer-quality score for service_story [answer:citations, answer:dogfood, capability:answer-experience]
+  - Fix boundedness answer-quality score for service_story [answer:dogfood, capability:answer-experience]
+  - Fix follow_up_usefulness answer-quality score for service_story [answer:dogfood, answer:mcp, capability:answer-experience]

@@ -24,8 +24,8 @@ var rootCmd = &cobra.Command{
 	Long: `Eshu is both an MCP server and a CLI toolkit for code analysis.
 
 For MCP Server Mode (AI assistants):
-  Use the Eshu core binary's MCP setup to configure your IDE
-  (this CLI's "mcp" family stays core-only in Tier-1)
+  Use 'eshu mcp setup' to configure your IDE
+  (server launch stays in the core binary)
 
 For CLI Toolkit Mode (direct usage):
   eshu index .     -- Index your current directory

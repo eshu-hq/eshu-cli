@@ -1,0 +1,15 @@
+--- core/go/internal/cli/config/doc.go
++++ dest/internal/cli/config/doc.go
+@@ -18,9 +18,9 @@
+ //
+ // Those two are the whole environment surface. No ESHU_* setting or credential
+ // is resolved from the process environment: those come out of the .env file or
+-// arrive as parameters. internal/envregistry, the only non-standard-library
+-// package imported, holds a static registry and reads no environment of its
+-// own; the environment it validates is passed in as a map.
++// arrive as parameters. The published apicontract client table, the only
++// non-standard-library package imported, holds a static registry and reads no
++// environment of its own; the environment it validates is passed in as a map.
+ //
+ // Load, ResolveValue, SetValue, and Reset are the read/write surface over that
+ // file. ResolveValue is the one the rest of the CLI depends on: `eshu`'s API

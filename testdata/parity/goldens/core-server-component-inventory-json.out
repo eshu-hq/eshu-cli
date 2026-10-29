@@ -1,0 +1,23 @@
+{
+  "data": {
+    "components": [
+      {
+        "id": "demo.ext",
+        "states": [
+          "active"
+        ],
+        "version": "0.1.0"
+      }
+    ],
+    "count": 1,
+    "limit": 100,
+    "total_count": 1,
+    "truncated": false
+  },
+  "truth": {
+    "freshness": {
+      "state": "fresh"
+    }
+  },
+  "error": null
+}

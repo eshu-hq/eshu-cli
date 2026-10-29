@@ -1,0 +1,32 @@
+Print platform-specific MCP client config and optionally install it.
+
+By default this prints a safe snippet and writes nothing. Use --write to
+merge the eshu server entry into the platform config, preserving existing
+servers and keys. Use --hosted with --service-url for an HTTP endpoint.
+
+--auth selects the credential story for hosted setup: auto (default)
+probes the server's RFC 9728 discovery route and resolves per-user token
+or SSO; sso forces the OAuth flow; token forces the per-user
+${ESHU_MCP_TOKEN} reference; shared-key (or --shared-key) forces the
+legacy admin/dev ${ESHU_API_KEY} credential, never emitted by default.
+No posture ever prints a raw secret.
+
+Usage:
+  eshu mcp setup [flags]
+
+Flags:
+      --api-key string       API key for authentication
+      --auth string          MCP auth posture for hosted setup: auto, sso, token, or shared-key (default "auto")
+  -h, --help                 help for setup
+      --hosted               Generate hosted HTTP setup instead of local stdio
+      --platform string      Target MCP client: claude, codex, cursor, generic, vscode (default "generic")
+      --profile string       Config profile name
+      --service-url string   API service URL (overrides config)
+      --shared-key           Force the legacy shared ESHU_API_KEY credential (admin/dev only)
+      --target string        Override the file path used by --write
+      --verify               Run staged verification (config, reachable, tools, first query)
+      --write                Merge the config into the platform's file instead of printing it
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

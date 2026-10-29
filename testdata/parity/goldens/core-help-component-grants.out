@@ -1,0 +1,14 @@
+List recorded producer grants
+
+Usage:
+  eshu component grants [flags]
+
+Flags:
+      --component-home string   Component registry home directory
+  -h, --help                    help for grants
+      --json                    Write stable JSON output
+      --producer string         Show only grants for one producer ID
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,0 +1,6 @@
+Auth posture: token (per-user ESHU_MCP_TOKEN)
+MCP setup verification
+  [ok] config generated: platform snippet produced
+  [ok] client reachable: health probe responded
+  [ok] tools visible: 2 tools advertised by the deployment; fewer when ESHU_MCP_TOOL_SURFACE is router or core_router
+  [ok] first query successful: bounded read succeeded

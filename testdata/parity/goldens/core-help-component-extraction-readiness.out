@@ -1,0 +1,13 @@
+Report the advisory collector extraction readiness checklist. The output is informational: it never moves code or changes runtime behavior. With no argument it lists every collector family the extraction policy tracks; with a family argument it explains that single family's per-criterion checklist.
+
+Usage:
+  eshu component extraction-readiness [collector-family] [flags]
+
+Flags:
+  -h, --help      help for extraction-readiness
+      --json      Emit machine-readable JSON
+      --verbose   Show every criterion, not just blockers
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
