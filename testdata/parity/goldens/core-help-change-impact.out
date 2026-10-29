@@ -1,0 +1,31 @@
+Map a local diff or changed file list to bounded impact evidence
+
+Usage:
+  eshu change impact [flags]
+
+Flags:
+      --api-key string        API key for authentication
+      --base string           Git base ref for local diff derivation
+      --env string            Optional environment filter
+      --file stringArray      Repo-relative changed file path; repeat for multiple files
+      --head string           Git head ref for local diff derivation
+  -h, --help                  help for impact
+      --json                  Write the canonical pre-change impact envelope as JSON
+      --limit int             Maximum rows per response section (max 100) (default 25)
+      --max-depth int         Maximum graph traversal depth (max 8) (default 4)
+      --module-id string      Optional Terraform module id
+      --offset int            Result offset for content-backed code investigation
+      --profile string        Config profile name
+      --repo-id string        Repository selector for changed-path lookup
+      --repo-path string      Local repository path used to derive --base/--head diffs (default ".")
+      --resource-id string    Optional canonical cloud resource id
+      --service-name string   Optional service or workload name
+      --service-url string    API service URL (overrides config)
+      --target string         Optional canonical entity id or exact entity name
+      --target-type string    Optional target kind
+      --topic string          Optional code topic to scope impact
+      --workload-id string    Optional canonical workload id
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

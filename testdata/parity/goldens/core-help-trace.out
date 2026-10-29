@@ -1,0 +1,16 @@
+Trace code-to-runtime evidence
+
+Usage:
+  eshu trace [command]
+
+Available Commands:
+  service     Trace how a service gets from source code to runtime
+
+Flags:
+  -h, --help   help for trace
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu trace [command] --help" for more information about a command.

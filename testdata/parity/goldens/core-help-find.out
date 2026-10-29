@@ -1,0 +1,22 @@
+Search and discover entities in the code graph
+
+Usage:
+  eshu find [command]
+
+Available Commands:
+  argument    Find functions with a parameter name
+  content     Full-text search in source content
+  decorator   Find functions with a decorator
+  name        Exact-name search
+  pattern     Substring search
+  type        List all nodes of one type
+  variable    Find variables by name
+
+Flags:
+  -h, --help   help for find
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu find [command] --help" for more information about a command.

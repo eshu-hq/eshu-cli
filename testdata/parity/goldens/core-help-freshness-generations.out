@@ -1,0 +1,22 @@
+Drill into scope generation lifecycle history
+
+Usage:
+  eshu freshness generations [flags]
+
+Flags:
+      --api-key string          API key for authentication
+      --collector-kind string   Collector kind filter, for example git or terraform_state
+      --generation-id string    Exact generation id to drill into a single row
+  -h, --help                    help for generations
+      --json                    Write the canonical generation lifecycle envelope as JSON
+      --limit int               Maximum generation lifecycle rows to return (max 500) (default 50)
+      --profile string          Config profile name
+      --repository string       Canonical repository id (repository-kind scopes)
+      --scope-id string         Exact ingestion scope id to drill into
+      --service-url string      API service URL (overrides config)
+      --source-system string    Source system filter, for example github
+      --status string           Generation status filter (pending|active|superseded|completed|failed)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

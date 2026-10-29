@@ -1,0 +1,11 @@
+Show the installed application version
+
+Usage:
+  eshu version [flags]
+
+Flags:
+  -h, --help   help for version
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

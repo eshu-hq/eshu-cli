@@ -1,0 +1,11 @@
+Configure Neo4j database connection
+
+Usage:
+  eshu neo4j setup [flags]
+
+Flags:
+  -h, --help   help for setup
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

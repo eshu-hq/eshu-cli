@@ -1,0 +1,14 @@
+Show the latest checkpointed indexing status
+
+Usage:
+  eshu index-status [flags]
+
+Flags:
+      --api-key string       API key for authentication
+  -h, --help                 help for index-status
+      --profile string       Config profile name
+      --service-url string   API service URL (overrides config)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

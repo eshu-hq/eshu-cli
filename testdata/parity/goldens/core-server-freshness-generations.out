@@ -1,0 +1,12 @@
+{
+  "data": {
+    "parity": "ok",
+    "path": "/api/v0/freshness/generations?limit=50",
+    "token": "SECRET-VALUE"
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  },
+  "error": null
+}

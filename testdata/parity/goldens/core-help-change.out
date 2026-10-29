@@ -1,0 +1,17 @@
+Inspect pre-change impact over Eshu evidence
+
+Usage:
+  eshu change [command]
+
+Available Commands:
+  impact      Map a local diff or changed file list to bounded impact evidence
+  plan        Build a read-only developer change plan over bounded impact evidence
+
+Flags:
+  -h, --help   help for change
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu change [command] --help" for more information about a command.

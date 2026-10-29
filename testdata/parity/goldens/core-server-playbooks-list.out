@@ -1,0 +1,12 @@
+{
+  "data": {
+    "parity": "ok",
+    "path": "/api/v0/query-playbooks?view=full&limit=200",
+    "token": "SECRET-VALUE"
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  },
+  "error": null
+}

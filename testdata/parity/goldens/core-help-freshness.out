@@ -1,0 +1,18 @@
+Inspect ingestion freshness and generation lifecycle
+
+Usage:
+  eshu freshness [command]
+
+Available Commands:
+  changed-since         Summarize what changed since a prior generation or instant
+  generations           Drill into scope generation lifecycle history
+  service-changed-since Summarize what changed for a service since a prior service generation
+
+Flags:
+  -h, --help   help for freshness
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu freshness [command] --help" for more information about a command.

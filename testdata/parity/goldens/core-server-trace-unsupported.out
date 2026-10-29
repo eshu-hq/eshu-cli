@@ -1,0 +1,10 @@
+{
+  "data": null,
+  "truth": {
+    "parity": "stub"
+  },
+  "error": {
+    "code": "unsupported_capability",
+    "message": "parity ENV_UNSUPPORTED"
+  }
+}

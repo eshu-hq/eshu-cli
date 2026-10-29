@@ -1,0 +1,1 @@
+Build with: cd go && go build -o bin/ ./cmd/bootstrap-index/

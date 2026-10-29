@@ -1,0 +1,13 @@
+Index a local path into the code graph
+
+Usage:
+  eshu index [path] [flags]
+
+Flags:
+      --discovery-report string   Write a discovery advisory JSON report to this path
+  -f, --force                     Force re-index
+  -h, --help                      help for index
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
