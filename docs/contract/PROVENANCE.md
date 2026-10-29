@@ -7,9 +7,15 @@ until its reviewed cutover.
 ## Source
 
 - Source repository: `eshu-hq/eshu`, ref `origin/main`.
-- Source SHA at seed time: `e4c385f493494ed9d6c7f192b04ce0255361f621`.
+- Source SHA at re-seed time: `37171bafa22edcdded62dbcb7c7ce7bdaf37756a`
+  (merge of `eshu-hq/eshu#9504`).
 - Step-1 census: PR `eshu-hq/eshu#9361` (inventory + pinning tests).
 - Step-2 contract: PR `eshu-hq/eshu#9441` (day-one contract + pinning tests).
+- Install/filesystem seam: PR `eshu-hq/eshu#9484` (fail-closed source
+  contract + managed-home filesystem pins).
+- Open-questions verdict: PR `eshu-hq/eshu#9504` (arbiter ruling
+  recorded, census Open questions replaced with Decided questions,
+  `go/cmd/eshu/` re-pinned at 146 entries).
 
 ## Verbatim files (byte-parity)
 
@@ -17,10 +23,10 @@ These files are copied byte for byte from the source SHA above.
 `scripts/check-parity.sh` (and the `parity` CI lane) re-verifies them
 against `docs/contract/PARITY.sha256`.
 
-| Destination path | Source path at the seed SHA | sha256 |
+| Destination path | Source path at the re-seed SHA | sha256 |
 | --- | --- | --- |
-| `docs/contract/8874-eshu-cli-contract.md` | `docs/internal/evidence/8874-eshu-cli-contract.md` | `4a5b972f35e441f1866aac883ec16881aa8f7213e0d76552cdb0dd0df06db1eb` |
-| `docs/contract/cli_extraction_inventory.md` | `go/cmd/eshu/cli_extraction_inventory.md` | `d539f8dd5f771f44f47dd791771a5c577bc331bee85899807f61da02cadb7566` |
+| `docs/contract/8874-eshu-cli-contract.md` | `docs/internal/evidence/8874-eshu-cli-contract.md` | `abf8a2d088f398019e5f0dba21865ab3a8dc21af0271fc6140b77fd726abd5ca` |
+| `docs/contract/cli_extraction_inventory.md` | `go/cmd/eshu/cli_extraction_inventory.md` | `d8af0cb32981d35113e69e3973039e4ed550ed3254a9776722c8102db9c8f043` |
 
 Proof: `git show <source-SHA>:<source-path> | sha256sum` equals the
 table entry, and `diff` of source bytes vs destination file is empty.
