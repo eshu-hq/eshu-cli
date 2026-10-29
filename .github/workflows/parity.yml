@@ -15,7 +15,7 @@ jobs:
         if: hashFiles('go.mod') != ''
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
-          go-version: "1.27.2"
+          go-version: "1.26.10"
           cache: false
       - name: Census (closures, pins, credentials)
         if: hashFiles('go.mod') != ''
