@@ -8,7 +8,10 @@ repointing `github.com/eshu-hq/eshu/go/internal` ->
 (`cmd/eshu/basic.go`: watch registration removed, now an E3 STUB;
 `cmd/eshu/root.go`: doctor registration removed, now an E3 STUB;
 `cmd/eshu/output.go`: `//nolint:unused` freeze annotations on the three
-helpers whose Tier-2/3 callers land with later tiers).
+helpers whose Tier-2/3 callers land with later tiers). The exact recorded
+diffs live in `testdata/parity/deltas/<path>.patch` (stable `core/` /
+`dest/` labels); `check-nofork.sh --fetch` requires the live diff to equal
+the committed patch byte-for-byte, so any unrecorded hunk fails closed.
 
 Divergent evolution in either tree is a fork under decision 1 of the
 population-scope verdict and blocks release. `scripts/check-nofork.sh`

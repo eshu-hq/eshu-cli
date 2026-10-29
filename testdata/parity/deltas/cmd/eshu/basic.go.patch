@@ -1,0 +1,33 @@
+--- core/go/cmd/eshu/basic.go
++++ dest/cmd/eshu/basic.go
+@@ -86,17 +86,6 @@
+ 	}
+ 	rootCmd.AddCommand(queryCmd)
+ 
+-	// watch
+-	watchCmd := &cobra.Command{
+-		Use:   "watch [path]",
+-		Short: "Watch a local path for changes and update the graph",
+-		Args:  cobra.MaximumNArgs(1),
+-		RunE:  runWatch,
+-	}
+-	watchCmd.Flags().String("scope", "auto", "Watch scope: auto, repo, or workspace")
+-	watchCmd.Flags().String("workspace-root", "", "Explicit workspace root for the local Eshu service")
+-	rootCmd.AddCommand(watchCmd)
+-
+ 	// unwatch
+ 	unwatchCmd := &cobra.Command{
+ 		Use:   "unwatch <path>",
+@@ -162,12 +151,6 @@
+ 	}
+ 	rmCmd.Flags().Bool("all", false, "Delete all indexed repositories")
+ 	rootCmd.AddCommand(rmCmd)
+-	rootCmd.AddCommand(&cobra.Command{
+-		Use:   "w [path]",
+-		Short: "Shortcut for 'eshu watch'",
+-		Args:  cobra.MaximumNArgs(1),
+-		RunE:  runWatch,
+-	})
+ }
+ 
+ func runIndex(cmd *cobra.Command, args []string) error {

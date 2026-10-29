@@ -49,24 +49,27 @@ if [ "${1:-}" = "--fetch" ]; then
         FAIL=1
         continue
       fi
+      # Recorded-delta verification: the live diff of import-normalized core
+      # vs destination must equal the committed patch (absent patch file
+      # means the file must be identical). Word-matching filters cannot
+      # express "this hunk is the recorded surgery", so the patch is the
+      # oracle: any unrecorded hunk fails the freeze.
       sed "s|$OLD_PREFIX|$NEW_PREFIX|g" "$CORE_D/$core" >"$CORE_D/.norm"
-      if diff -q "$CORE_D/.norm" "$dest" >/dev/null 2>&1; then
-        echo "PASS(fetch): $dest identical to pin except import paths"
-      elif [ "$dest" = cmd/eshu/basic.go ] || [ "$dest" = cmd/eshu/root.go ] || [ "$dest" = cmd/eshu/output.go ]; then
-        # Recorded deltas only: the watch registration (basic.go), the doctor
-        # command (root.go), or the freeze nolint annotations (output.go).
-        # Anything else is divergent evolution and fails the freeze.
-        rest="$(diff "$CORE_D/.norm" "$dest" | grep "^[<>]" | grep -vi "watch\|doctor\|runwatch\|doctorcmd\|nolint:unused\|freeze keeps the shared output\|callers land with later tiers" || true)"
-        if [ -z "$rest" ]; then
-          echo "PASS(fetch): $dest matches pin except imports and the recorded delta"
+      patch="testdata/parity/deltas/$dest.patch"
+      actual="$(diff -u --label "core/$core" --label "dest/$dest" "$CORE_D/.norm" "$dest" || true)"
+      if [ ! -f "$patch" ]; then
+        if [ -z "$actual" ]; then
+          echo "PASS(fetch): $dest identical to pin except import paths"
         else
-          echo "FAIL(fetch): $dest differs beyond imports and the recorded delta:"
-          echo "$rest" | head -20
+          echo "FAIL(fetch): $dest differs from pin beyond import paths:"
+          echo "$actual" | head -20
           FAIL=1
         fi
+      elif [ "$actual" = "$(cat "$patch")" ]; then
+        echo "PASS(fetch): $dest matches pin except imports and the recorded delta"
       else
-        echo "FAIL(fetch): $dest differs from pin beyond import paths:"
-        diff "$CORE_D/.norm" "$dest" | head -20
+        echo "FAIL(fetch): $dest differs from the recorded delta $patch:"
+        diff "$patch" <(printf '%s\n' "$actual") | head -30
         FAIL=1
       fi
     done < <(moved_files)
