@@ -73,7 +73,8 @@ func runAnswerQualityScorecard(cmd *cobra.Command, _ []string) error {
 		}
 		raw = data
 	} else {
-		data, err := os.ReadFile(path) //nolint:gosec // operator-supplied local evidence path, not an HTTP request param
+		// #nosec G304 -- operator-supplied local evidence path, not an HTTP request param
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return fmt.Errorf("read answer-quality evidence file %q: %w", path, err)
 		}

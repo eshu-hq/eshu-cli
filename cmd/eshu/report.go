@@ -255,7 +255,8 @@ func runReportValidate(cmd *cobra.Command, _ []string) error {
 
 	var raw []byte
 	if strings.TrimSpace(from) != "" {
-		data, err := os.ReadFile(from) //nolint:gosec // operator-supplied local bundle path, not an HTTP request param
+		// #nosec G304 -- operator-supplied local bundle path, not an HTTP request param
+		data, err := os.ReadFile(from)
 		if err != nil {
 			return fmt.Errorf("read report bundle: %w", err)
 		}

@@ -154,7 +154,8 @@ func runServiceReport(cmd *cobra.Command, _ []string) error {
 // readable from stdin, which must be non-empty.
 func readServiceReportInput(stdin io.Reader, path string) ([]byte, error) {
 	if strings.TrimSpace(path) != "" {
-		data, err := os.ReadFile(path) //nolint:gosec // operator-supplied CLI input path, not an HTTP request param
+		// #nosec G304 -- operator-supplied CLI input path, not an HTTP request param
+		data, err := os.ReadFile(path)
 		if err != nil {
 			return nil, fmt.Errorf("read service-story response %s: %w", path, err)
 		}
