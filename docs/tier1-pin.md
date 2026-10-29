@@ -6,12 +6,16 @@ byte-identical to the core path at the pin except the module import-path
 repointing `github.com/eshu-hq/eshu/go/internal` ->
 `github.com/eshu-hq/eshu-cli/internal`, plus three recorded deltas
 (`cmd/eshu/basic.go`: watch registration removed, now an E3 STUB;
-`cmd/eshu/root.go`: doctor registration removed, now an E3 STUB;
+`cmd/eshu/root.go`: doctor registration removed, now an E3 STUB, plus the
+MCP-onboarding `Long` reword so root help no longer routes through the
+stubbed `mcp` family (eshu-hq/eshu-cli#23);
 `cmd/eshu/output.go`: `//nolint:unused` freeze annotations on the three
 helpers whose Tier-2/3 callers land with later tiers). The exact recorded
 diffs live in `testdata/parity/deltas/<path>.patch` (stable `core/` /
 `dest/` labels); `check-nofork.sh --fetch` requires the live diff to equal
 the committed patch byte-for-byte, so any unrecorded hunk fails closed.
+The CI parity lane runs `--fetch --require-fetch`, so a fetch failure is a
+hard FAIL there instead of a SKIP.
 
 Divergent evolution in either tree is a fork under decision 1 of the
 population-scope verdict and blocks release. `scripts/check-nofork.sh`
@@ -20,6 +24,8 @@ a sparse checkout of the pin SHA in CI.
 
 Destination-authored files outside the freeze: `cmd/eshu/doc.go`,
 `cmd/eshu/neo4j.go`, `cmd/eshu/stubs.go`, `cmd/eshu/stubs_test.go`,
+`cmd/eshu/client_bearer_test.go` (httptest provenance for the
+Proof-table bearer-carriage figure, eshu-hq/eshu-cli#23),
 `internal/cli/change/redaction_helper_test.go` (canary scaffolding mirroring
 core's `render_test.go` helper), and
 `internal/cli/config/credential_roundtrip_test.go` (decision-7 proof).
@@ -42,7 +48,7 @@ this table, re-capture Tier-1 parity goldens, and re-run the full review.
 | `cmd/eshu/output.go` | `go/cmd/eshu/output.go` | d842ed357aee4a30f7533577af6c05d340165755da495c7792e8390af5083345 |
 | `cmd/eshu/playbooks.go` | `go/cmd/eshu/playbooks.go` | df92e661ae0e71e6b62d5c356abef309aab0b01faa6d8b3b3e5a597059ec09f0 |
 | `cmd/eshu/repository_selector.go` | `go/cmd/eshu/repository_selector.go` | e4cebe6dcb14e8a9c53d481d34a90c39c71330b0db767a81b6fe67a310e31b25 |
-| `cmd/eshu/root.go` | `go/cmd/eshu/root.go` | 40912c70e1a26ed5eea5294113c4dcce80dd4f7c7addcf6c88f2d3b2306415b8 |
+| `cmd/eshu/root.go` | `go/cmd/eshu/root.go` | 31acb722e8930e258d26121c687f0124e5ab2fa56c47313b8be9e051c932d4e5 |
 | `cmd/eshu/trace.go` | `go/cmd/eshu/trace.go` | af66fe8e36aed58589fce91ae5d1ed5228bd13785a3606eeee18094be79203bf |
 | `internal/buildinfo/buildinfo.go` | `go/internal/buildinfo/buildinfo.go` | cdb1de4e5c9f219c721cedd2c90bb6e7068922bf3649221dcfe125b846c72f83 |
 | `internal/buildinfo/cli.go` | `go/internal/buildinfo/cli.go` | db77f0f7927a37e0aa0aa5bb3b4c79d8aaae2a9727e2e19138be5ddb2b4d1a13 |

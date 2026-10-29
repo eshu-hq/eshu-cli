@@ -22,7 +22,7 @@ jobs:
         run: bash scripts/check-census.sh
       - name: No-fork freeze against the pinned core commit
         if: hashFiles('go.mod') != ''
-        run: bash scripts/check-nofork.sh --fetch
+        run: bash scripts/check-nofork.sh --fetch --require-fetch
       - name: Tier-1 parity (help, envelopes, exits 0-6)
         if: hashFiles('go.mod') != ''
         run: bash scripts/check-tier1-parity.sh check

@@ -5,9 +5,11 @@
 # except the module import-path repointing (decision 7 moved-package freeze:
 # divergent evolution in either tree is a fork and blocks release).
 #
-#   scripts/check-nofork.sh          # offline: dest bytes vs recorded pin hashes
-#   scripts/check-nofork.sh --fetch  # CI: sparse-fetch core at the pin SHA and
-#                                    # diff file by file (loud skip offline)
+#   scripts/check-nofork.sh                      # offline: dest bytes vs recorded pin hashes
+#   scripts/check-nofork.sh --fetch              # CI: sparse-fetch core at the pin SHA and
+#                                                # diff file by file (loud skip offline)
+#   scripts/check-nofork.sh --fetch --require-fetch  # CI lane: fetch failure is a
+#                                                # hard FAIL, never a SKIP (eshu-hq/eshu-cli#23)
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -23,6 +25,7 @@ moved_files() {
   find cmd/eshu internal -name '*.go' | sort | while read -r dest; do
     case "$dest" in
       cmd/eshu/doc.go | cmd/eshu/neo4j.go | cmd/eshu/stubs.go | cmd/eshu/stubs_test.go | \
+        cmd/eshu/client_bearer_test.go | \
         internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go)
         continue
         ;;
@@ -34,13 +37,31 @@ moved_files() {
   done
 }
 
-if [ "${1:-}" = "--fetch" ]; then
+WANT_FETCH=0
+REQUIRE_FETCH=0
+for arg in "$@"; do
+  case "$arg" in
+    --fetch) WANT_FETCH=1 ;;
+    --require-fetch) REQUIRE_FETCH=1 ;;
+  esac
+done
+
+fail_or_skip_fetch() {
+  if [ "$REQUIRE_FETCH" = 1 ]; then
+    echo "FAIL(fetch): $1 (--require-fetch is set, the independent leg must run)"
+    FAIL=1
+  else
+    echo "SKIP(fetch): $1; offline pin-hash check below still enforces the freeze"
+  fi
+}
+
+if [ "$WANT_FETCH" = 1 ]; then
   CORE_D="$(mktemp -d)"
   trap 'rm -rf "$CORE_D"' EXIT
   if ! git clone -q --filter=blob:none --no-checkout https://github.com/eshu-hq/eshu.git "$CORE_D" 2>/dev/null; then
-    echo "SKIP(fetch): cannot reach github.com; offline pin-hash check below still enforces the freeze"
+    fail_or_skip_fetch "cannot reach github.com"
   elif ! git -C "$CORE_D" fetch -q --depth 1 origin "$PIN_SHA" >/dev/null 2>&1; then
-    echo "SKIP(fetch): cannot fetch pin SHA $PIN_SHA; offline pin-hash check below still enforces the freeze"
+    fail_or_skip_fetch "cannot fetch pin SHA $PIN_SHA"
   else
     git -C "$CORE_D" checkout -q "$PIN_SHA" >/dev/null 2>&1
     while read -r dest core; do

@@ -196,6 +196,17 @@ capture_stubs() {
 
 # E4 index cases need PATH surgery without breaking tool lookup: run the
 # binary through absolute /usr/bin/env so mkdir/cmp/diff keep working.
+# The index verb prints the absolute target directory, so stdout is
+# normalized with the checkout root rewritten to __WORKDIR__ before it is
+# captured or compared: otherwise the golden pins the machine that ran the
+# capture and the lane can only pass there (eshu-hq/eshu-cli#23 P1).
+WORKDIR_PLACEHOLDER="__WORKDIR__"
+canon_workdir() {
+  local root="$1"
+  local esc
+  esc="$(printf '%s' "$root" | sed 's/[][\\.*^$/]/\\&/g')"
+  sed "s|$esc|$WORKDIR_PLACEHOLDER|g"
+}
 capture_e4() {
   local bin="$1" prefix="$2" empty fake
   empty="$(mktemp -d)"
@@ -207,9 +218,9 @@ capture_e4() {
   out="$GOLDENS/$name.out"; errf="$GOLDENS/$name.err"; exitf="$GOLDENS/$name.exit"
   if [ "$MODE" = capture ]; then
     set +e
-    /usr/bin/env PATH="$empty" "$bin" index . >"$out" 2>"$errf"
+    /usr/bin/env PATH="$empty" "$bin" index . 2>"$errf" | canon_workdir "$PWD" >"$out"
     echo -n "$?" >"$exitf"
-    /usr/bin/env PATH="$fake:/usr/bin:/bin" "$bin" index . >"$GOLDENS/$prefix-local-index-exec.out" 2>"$GOLDENS/$prefix-local-index-exec.err"
+    /usr/bin/env PATH="$fake:/usr/bin:/bin" "$bin" index . 2>"$GOLDENS/$prefix-local-index-exec.err" | canon_workdir "$PWD" >"$GOLDENS/$prefix-local-index-exec.out"
     echo -n "$?" >"$GOLDENS/$prefix-local-index-exec.exit"
     set -e
     return 0
@@ -217,7 +228,7 @@ capture_e4() {
   local tmp_o tmp_e got
   tmp_o="$(mktemp)"; tmp_e="$(mktemp)"
   set +e
-  /usr/bin/env PATH="$empty" "$bin" index . >"$tmp_o" 2>"$tmp_e"
+  /usr/bin/env PATH="$empty" "$bin" index . 2>"$tmp_e" | canon_workdir "$PWD" >"$tmp_o"
   got="$?"
   set -e
   if [ "$got" != 1 ] || ! cmp -s "$tmp_o" "$out" || ! cmp -s "$tmp_e" "$errf"; then
@@ -228,7 +239,7 @@ capture_e4() {
     echo "PASS: $name"
   fi
   set +e
-  /usr/bin/env PATH="$fake:/usr/bin:/bin" "$bin" index . >"$tmp_o" 2>"$tmp_e"
+  /usr/bin/env PATH="$fake:/usr/bin:/bin" "$bin" index . 2>"$tmp_e" | canon_workdir "$PWD" >"$tmp_o"
   got="$?"
   set -e
   if [ "$got" != 7 ] || ! cmp -s "$tmp_o" "$GOLDENS/$prefix-local-index-exec.out" || ! cmp -s "$tmp_e" "$GOLDENS/$prefix-local-index-exec.err"; then

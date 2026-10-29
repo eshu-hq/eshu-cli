@@ -25,7 +25,7 @@ func init() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Neo4j Database Setup")
 			fmt.Println("Set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD environment variables")
-			fmt.Println("or use 'eshu config set NEO4J_URI bolt://localhost:7687'")
+			fmt.Println("e.g. export NEO4J_URI=bolt://localhost:7687 (persistent config lives in the Eshu core binary)")
 			return nil
 		},
 	})
@@ -38,7 +38,7 @@ func init() {
 		RunE: func(cmd *cobra.Command, args []string) error {
 			fmt.Println("Neo4j Database Setup")
 			fmt.Println("Set NEO4J_URI, NEO4J_USERNAME, NEO4J_PASSWORD environment variables")
-			fmt.Println("or use 'eshu config set NEO4J_URI bolt://localhost:7687'")
+			fmt.Println("e.g. export NEO4J_URI=bolt://localhost:7687 (persistent config lives in the Eshu core binary)")
 			return nil
 		},
 	}
