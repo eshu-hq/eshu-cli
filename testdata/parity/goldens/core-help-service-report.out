@@ -1,0 +1,26 @@
+service-report composes an operator-ready service intelligence report from a
+captured get_service_story response.
+
+It reads JSON from --from or stdin. The input is the response from the service
+story route (the standard {"data": ..., "truth": ...} envelope, or a bare
+dossier object). The command maps the dossier into the identity,
+code_to_runtime, and deployment_config sections, then composes the report. It
+runs no query, store, or LLM path: each section's truth is the captured truth,
+and sections with no supporting evidence stay visible as partial or unsupported
+with explicit limitations and bounded next calls.
+
+Supply-chain and incident sections are emitted unsupported unless their evidence
+is wired in; this slice sources only the service story.
+
+Usage:
+  eshu service-report [flags]
+
+Flags:
+      --from string                Path to a captured service-story response JSON file (default: read stdin)
+  -h, --help                       help for service-report
+      --json                       Emit the composed report as JSON
+      --supply-chain-from string   Optional path to a captured supply-chain impact inventory response JSON file
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

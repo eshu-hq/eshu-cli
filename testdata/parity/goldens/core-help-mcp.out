@@ -1,0 +1,18 @@
+MCP server commands
+
+Usage:
+  eshu mcp [command]
+
+Available Commands:
+  setup       Configure IDE and CLI MCP integrations
+  start       Start the Eshu MCP server
+  tools       List available MCP tools
+
+Flags:
+  -h, --help   help for mcp
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu mcp [command] --help" for more information about a command.

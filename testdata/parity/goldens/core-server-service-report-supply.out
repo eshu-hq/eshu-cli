@@ -1,0 +1,24 @@
+Service intelligence report: checkout (svc-1)
+  supported=true partial=true truth_class=derived
+
+[SUPPORTED] Service identity
+  Service checkout.
+[PARTIAL] Code-to-runtime trace
+  - no supporting evidence resolved for this question
+  ! Code-to-runtime trace is not fully resolved for service checkout; run the recommended next call to gather it
+[PARTIAL] Deployment and configuration influence
+  - no supporting evidence resolved for this question
+  ! Deployment and configuration influence is not fully resolved for service checkout; run the recommended next call to gather it
+[SUPPORTED] Supply-chain evidence
+  Service checkout has 2 supply-chain impact finding(s).
+[UNSUPPORTED] Incidents, support, and runbook evidence
+  - not_found: no incidents, support, and runbook evidence evidence available for service checkout
+  ! Incidents, support, and runbook evidence is not fully resolved for service checkout; run the recommended next call to gather it
+
+Recommended next calls:
+  - get_service_story (trace entrypoints and network paths from source to runtime for this service)
+  - playbook:service_story_citation (gather deployment lanes and per-environment configuration influence for this service)
+  - playbook:incident_context_evidence_path (pull incident, support, and runbook evidence routed to this service)
+
+Suggested investigations:
+  - [unsupported_lane] The incidents, support, and runbook evidence evidence lane is unavailable; gather it with the recommended call. -> playbook:incident_context_evidence_path (expect deterministic)

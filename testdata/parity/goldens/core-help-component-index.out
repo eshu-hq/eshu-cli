@@ -1,0 +1,16 @@
+Manage component extension index metadata
+
+Usage:
+  eshu component index [command]
+
+Available Commands:
+  verify      Verify a component extension index for local or CI publication gates
+
+Flags:
+  -h, --help   help for index
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu component index [command] --help" for more information about a command.

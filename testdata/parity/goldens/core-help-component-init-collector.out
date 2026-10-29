@@ -1,0 +1,16 @@
+Scaffold a collector component package
+
+Usage:
+  eshu component init collector [flags]
+
+Flags:
+      --fact-kind string   Namespaced fact kind emitted by the scaffold
+  -h, --help               help for collector
+      --id string          Component ID, for example dev.example.collector.demo
+      --json               Write stable JSON output
+      --output string      Output directory; defaults to ./<component-id>
+      --publisher string   Component publisher allowlist identity
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,8 +1,8 @@
 Eshu is both an MCP server and a CLI toolkit for code analysis.
 
 For MCP Server Mode (AI assistants):
-  Use the Eshu core binary's MCP setup to configure your IDE
-  (this CLI's "mcp" family stays core-only in Tier-1)
+  Use 'eshu mcp setup' to configure your IDE
+  (server launch stays in the core binary)
 
 For CLI Toolkit Mode (direct usage):
   eshu index .     -- Index your current directory
@@ -17,14 +17,14 @@ Available Commands:
   add-package              Removed: package indexing is owned by the Go bootstrap runtime
   admin                    STUB: core-only repair stays in core
   analyze                  Graph relationships and code quality analysis
-  answer-quality-scorecard STUB: answer scorer stays in core
+  answer-quality-scorecard Score captured answer evidence across API, MCP, CLI, and hosted surfaces
   assistant                STUB: project guidance stays in core
   change                   Inspect pre-change impact over Eshu evidence
   clean                    Removed: use admin cleanup flows instead
   competitive-parity       STUB: shipped-surface validator stays in core
   completion               Generate the autocompletion script for the specified shell
-  component                STUB: component surface stays in core
-  config                   STUB: local config UX stays in core
+  component                Manage optional Eshu components
+  config                   Manage configuration settings
   delete                   Removed: use admin deletion flows instead
   demo                     STUB: demo lifecycle stays in core
   demo-benchmark           STUB: demo scorer stays in core
@@ -38,8 +38,8 @@ Available Commands:
   first-run-benchmark      STUB: first-run scorer stays in core
   freshness                Inspect ingestion freshness and generation lifecycle
   graph                    STUB: sidecar lifecycle stays in core
-  help                     Show the main help message
   help                     Help about any command
+  help                     Show the main help message
   hosted-onboard           STUB: team onboarding stays in core
   hosted-setup             STUB: first-connection flow stays in core
   i                        Shortcut for 'eshu index'
@@ -49,17 +49,17 @@ Available Commands:
   investigation            STUB: evidence-packet export stays in core
   list                     List all indexed repositories
   ls                       Shortcut for 'eshu list'
-  m                        STUB: shortcut for MCP setup stays in core
+  m                        Shortcut for 'eshu mcp setup'
   map                      Map a bounded code-to-cloud entity neighborhood
-  mcp                      STUB: MCP setup stays in core
+  mcp                      MCP server commands
   n                        Shortcut for 'eshu neo4j setup'
   neo4j                    Neo4j database configuration
   playbooks                List and resolve deterministic query playbooks
   query                    Execute a language query against indexed code
-  report                   STUB: offline operator-digest renderer stays in core
+  report                   Render a deterministic operator digest for an explicit scope
   rm                       Shortcut for 'eshu delete'
   scan                     STUB: local-owner scan stays in core
-  service-report           STUB: service-story composer stays in core
+  service-report           Compose a service intelligence report from a captured service-story response
   stats                    Show indexing statistics
   trace                    Trace code-to-runtime evidence
   unwatch                  Removed: watcher lifecycle is owned by the Go ingester runtime

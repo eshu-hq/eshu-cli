@@ -1,0 +1,52 @@
+{
+ "schema_version": "wrong_answer_report.v1",
+ "bundle_id": "31bfa2b0669777d5ea711c91f234db0c9c0ae49062e03da6313cea3f93f19263",
+ "created_at": "2026-10-29T23:07:41Z",
+ "reporter_note": "parity",
+ "query": {
+  "surface": "api",
+  "target": "/api/v0/q",
+  "method": "GET",
+  "params": {
+   "x": "1"
+  }
+ },
+ "response": {
+  "truth": {
+   "level": "",
+   "freshness": {
+    "state": ""
+   }
+  },
+  "truncated": false,
+  "data": {
+   "parity": "ok",
+   "path": "/api/v0/q?x=1"
+  },
+  "data_digest": "52d38fa2f78cce33c565620ec10c8fa780b91603980ece760e00671b88fad0c2"
+ },
+ "evidence": {
+  "citations": [],
+  "fact_refs": [],
+  "fact_refs_state": "unavailable",
+  "fact_refs_reason": "no public fact-record read surface"
+ },
+ "redaction": {
+  "profile": "public",
+  "rules": [
+   "token"
+  ]
+ },
+ "validation": {
+  "status": "passed",
+  "checks": [
+   "schema_version",
+   "bundle_id",
+   "profile_payloads_consistency",
+   "query_inputs",
+   "reporter_note",
+   "response_error_text",
+   "share_safe_keys"
+  ]
+ }
+}

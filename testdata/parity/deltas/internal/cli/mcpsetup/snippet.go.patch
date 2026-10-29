@@ -1,0 +1,11 @@
+--- core/go/internal/cli/mcpsetup/snippet.go
++++ dest/internal/cli/mcpsetup/snippet.go
+@@ -9,7 +9,7 @@
+ 	"fmt"
+ 	"strings"
+ 
+-	resultshape "github.com/eshu-hq/eshu-cli/internal/mcp/result/shape"
++	resultshape "github.com/eshu-hq/eshu-cli/internal/cli/resultshape"
+ )
+ 
+ // marshalIndentNoHTML renders v as 2-space-indented JSON without HTML escaping

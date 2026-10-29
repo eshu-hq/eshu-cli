@@ -1,0 +1,13 @@
+Validate a wrong_answer_report.v1 bundle
+
+Usage:
+  eshu report validate [flags]
+
+Flags:
+      --from string      Path to a report bundle JSON file; stdin when omitted
+  -h, --help             help for validate
+      --require-public   Fail if the bundle's redaction profile is not public (share-safe)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,0 +1,17 @@
+MCP setup for Generic MCP JSON
+Add to: your MCP client's mcpServers configuration
+
+{
+  "mcpServers": {
+    "eshu": {
+      "args": [
+        "mcp",
+        "start"
+      ],
+      "command": "eshu"
+    }
+  }
+}
+
+Notes:
+  - Most MCP clients accept this "mcpServers" object; place it where your client expects.

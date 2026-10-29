@@ -1,0 +1,11 @@
+--- core/go/internal/cli/mcpsetup/setup.go
++++ dest/internal/cli/mcpsetup/setup.go
+@@ -9,7 +9,7 @@
+ 	"strings"
+ 
+ 	"github.com/eshu-hq/eshu-cli/internal/cli/evidredact"
+-	resultshape "github.com/eshu-hq/eshu-cli/internal/mcp/result/shape"
++	resultshape "github.com/eshu-hq/eshu-cli/internal/cli/resultshape"
+ )
+ 
+ // mcpServerKey is the server name Eshu registers in every MCP client config.

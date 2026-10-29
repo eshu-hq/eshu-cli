@@ -1,0 +1,2 @@
+MCP tools are served by the Go MCP server.
+Start the server with 'eshu mcp start' and connect via your IDE.

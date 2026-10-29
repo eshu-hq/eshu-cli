@@ -1,0 +1,18 @@
+Enable an installed component instance
+
+Usage:
+  eshu component enable <component-id> [flags]
+
+Flags:
+      --claims                  Enable workflow claims for this component instance
+      --component-home string   Component registry home directory
+      --config string           Path to component instance configuration
+      --dry-run                 Validate activation and render the planned result without writing component state
+  -h, --help                    help for enable
+      --instance string         Collector instance ID to enable
+      --json                    Write stable JSON output
+      --mode string             Collector activation mode (default "manual")
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

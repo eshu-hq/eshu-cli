@@ -1,0 +1,21 @@
+Capture a share-safe wrong_answer_report.v1 bundle from a query
+
+Usage:
+  eshu report capture [flags]
+
+Flags:
+      --api-key string       API key for authentication
+      --endpoint string      API path to query (required)
+  -h, --help                 help for capture
+      --include-payloads     PRIVATE TRIAGE ONLY: attach raw fact payloads and citation excerpts (never attach to a public issue)
+      --method string        HTTP method to issue: GET or POST (default "GET")
+      --note string          What you expected instead of the captured answer
+      --out string           Path to write the report bundle JSON; stdout when omitted
+      --params string        JSON object of query/body parameters as issued
+      --profile string       Config profile name
+      --service-url string   API service URL (overrides config)
+      --tool string          MCP tool name this query originated from, recorded as the surface; --endpoint still resolves the answer (Slice 1 records MCP capture, it does not invoke MCP itself)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

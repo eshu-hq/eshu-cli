@@ -1,0 +1,16 @@
+Scaffold a new component package
+
+Usage:
+  eshu component init [command]
+
+Available Commands:
+  collector   Scaffold a collector component package
+
+Flags:
+  -h, --help   help for init
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu component init [command] --help" for more information about a command.

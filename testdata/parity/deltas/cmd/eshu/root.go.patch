@@ -6,8 +6,8 @@
  For MCP Server Mode (AI assistants):
 -  1. Run 'eshu mcp setup' to configure your IDE
 -  2. Run 'eshu mcp start' to launch the server
-+  Use the Eshu core binary's MCP setup to configure your IDE
-+  (this CLI's "mcp" family stays core-only in Tier-1)
++  Use 'eshu mcp setup' to configure your IDE
++  (server launch stays in the core binary)
  
  For CLI Toolkit Mode (direct usage):
    eshu index .     -- Index your current directory

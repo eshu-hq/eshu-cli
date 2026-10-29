@@ -14,11 +14,11 @@ import (
 // path in main.go, guidance pointing at the core binary).
 func TestE3StubsPointAtCoreBinary(t *testing.T) {
 	stubRoots := []string{
-		"report", "investigation", "mcp", "m", "config", "component",
-		"scan", "vuln-scan", "service-report", "docs", "demo",
+		"investigation",
+		"scan", "vuln-scan", "docs", "demo",
 		"demo-benchmark", "first-run", "first-run-benchmark",
 		"hosted-setup", "hosted-onboard", "assistant",
-		"answer-quality-scorecard", "competitive-parity", "evidence",
+		"competitive-parity", "evidence",
 		"evidence-packet-dogfood", "workspace", "graph", "watch", "w",
 		"admin", "doctor", "install",
 	}

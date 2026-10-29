@@ -1,0 +1,13 @@
+Report the schema version each core reducer or query consumer currently supports for every core fact kind. With --check fact_kind=version it classifies a collector's fact schema version as supported, unsupported_major, unsupported_minor, or unknown_kind, and exits non-zero when the version is not supported. The command is read-only and never changes runtime behavior.
+
+Usage:
+  eshu component schema-versions [flags]
+
+Flags:
+      --check string   Classify one fact version as fact_kind=schema_version
+  -h, --help           help for schema-versions
+      --json           Emit machine-readable JSON
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

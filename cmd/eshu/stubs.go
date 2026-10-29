@@ -25,15 +25,9 @@ var tierStubFamilies = []struct {
 	use   string
 	short string
 }{
-	{"report", "STUB: offline operator-digest renderer stays in core"},
 	{"investigation", "STUB: evidence-packet export stays in core"},
-	{"mcp", "STUB: MCP setup stays in core"},
-	{"m", "STUB: shortcut for MCP setup stays in core"},
-	{"config", "STUB: local config UX stays in core"},
-	{"component", "STUB: component surface stays in core"},
 	{"scan", "STUB: local-owner scan stays in core"},
 	{"vuln-scan", "STUB: vulnerability evidence client stays in core"},
-	{"service-report", "STUB: service-story composer stays in core"},
 	{"docs", "STUB: docs verification stays in core"},
 	{"demo", "STUB: demo lifecycle stays in core"},
 	{"demo-benchmark", "STUB: demo scorer stays in core"},
@@ -42,7 +36,6 @@ var tierStubFamilies = []struct {
 	{"hosted-setup", "STUB: first-connection flow stays in core"},
 	{"hosted-onboard", "STUB: team onboarding stays in core"},
 	{"assistant", "STUB: project guidance stays in core"},
-	{"answer-quality-scorecard", "STUB: answer scorer stays in core"},
 	{"competitive-parity", "STUB: shipped-surface validator stays in core"},
 	{"evidence", "STUB: portable bundle client stays in core"},
 	{"evidence-packet-dogfood", "STUB: packet benchmark stays in core"},

@@ -1,0 +1,31 @@
+Operator digest
+  scope    : demo/app (repository)
+  profile  : local_authoritative
+  truth    : unsupported freshness=unavailable reason=bounded_read_surface_not_connected
+sections:
+  - hub_services: unsupported
+  - cross_domain_connections: unsupported
+  - ambiguity_review_queue: unsupported
+  - freshness_and_drift: unsupported
+  - unmanaged_or_orphaned_resources: unsupported
+suggested questions:
+  - Which missing or ambiguous evidence should be resolved before acting on this scope?
+    id: operator_digest.v1:question:ambiguity_review_queue:repo:demo/app
+    target: query-playbook:documentation-truth
+    why: unsupported section ambiguity_review_queue produced source signal operator_digest.v1:limitation:ambiguity_review_queue:repo:demo/app
+  - Is the current scope fresh enough for an operator decision?
+    id: operator_digest.v1:question:freshness_and_drift:repo:demo/app
+    target: route:/api/v0/status/pipeline
+    why: unsupported section freshness_and_drift produced source signal operator_digest.v1:limitation:freshness_and_drift:repo:demo/app
+  - Which service story should be built first for this scope?
+    id: operator_digest.v1:question:hub_services:repo:demo/app
+    target: mcp:get_service_story
+    why: unsupported section hub_services produced source signal operator_digest.v1:limitation:hub_services:repo:demo/app
+  - Which code-to-cloud connection needs citation evidence for this scope?
+    id: operator_digest.v1:question:cross_domain_connections:repo:demo/app
+    target: mcp:build_evidence_citation_packet
+    why: unsupported section cross_domain_connections produced source signal operator_digest.v1:limitation:cross_domain_connections:repo:demo/app
+  - Which runtime resource needs an ownership investigation for this scope?
+    id: operator_digest.v1:question:unmanaged_or_orphaned_resources:repo:demo/app
+    target: query-playbook:supply-chain-impact
+    why: unsupported section unmanaged_or_orphaned_resources produced source signal operator_digest.v1:limitation:unmanaged_or_orphaned_resources:repo:demo/app

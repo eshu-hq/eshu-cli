@@ -1,0 +1,22 @@
+MCP setup for Generic MCP JSON
+Add to: your MCP client's mcpServers configuration
+
+{
+  "mcpServers": {
+    "eshu": {
+      "headers": {
+        "Authorization": "Bearer ${ESHU_MCP_TOKEN}"
+      },
+      "type": "http",
+      "url": "http://127.0.0.1:18091/mcp/message"
+    }
+  }
+}
+
+Create a personal API token in the Eshu console: https://<host>/profile
+(Profile -> API tokens), then export it before launching the client:
+  export ESHU_MCP_TOKEN=...
+The token authenticates you as yourself; it is scoped to your grants.
+
+Notes:
+  - Most MCP clients accept this "mcpServers" object; place it where your client expects.

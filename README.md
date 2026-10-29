@@ -28,8 +28,9 @@ family, all pointing at the core binary.
 - `cmd/eshu/`: the Tier-1 cobra tree (`doc.go` describes the scope).
 - `internal/`: the small-closure libraries the tree owns (`apierr`,
   `trace`, `change`, `entitymap`, `freshness`, `playbooks`, `config`,
-  `reposelector`, `envregistry`, `buildinfo`), pinned to the core commit
-  in `docs/tier1-pin.md` under the moved-package freeze.
+  `reposelector`, `buildinfo`; `envregistry` was retired in Tier-2),
+  pinned to the core commit in `docs/tier1-pin.md` under the
+  moved-package freeze.
 - Proof: `scripts/check-census.sh` (closures, pins, credentials),
   `scripts/check-nofork.sh` (freeze), `scripts/check-tier1-parity.sh`
   with `testdata/parity/goldens/` (help bytes, `--json` envelopes,
@@ -37,6 +38,22 @@ family, all pointing at the core binary.
   redaction canaries in `go test ./...`.
 
 In-tree removal in `eshu` still waits for production acceptance.
+
+## Tier-2 population
+
+The second population carries the Tier-2 set from the same verdict: thin
+clients for `report` (digest plus capture/validate through the S4
+endpoints), `service-report` (compose), `answer-quality-scorecard`
+(score), `config` (validate against the published client table),
+`component` inventory/diagnostics, and `mcp`/`m` setup (remote tools/list
+decoded via `apicontract.ToolDefinition`). `investigation export` stays
+stubbed: its packet build is truth assembly with no build endpoint.
+The published `sdk/go/apicontract` module is pinned in `go.mod`
+(`docs/tier2-pin.md`; the `v0.1.0` tag is pending, so the pin is the
+toolchain-derived pseudo-version at the Tier-2 core commit, never an
+invented version). New verbatim copies and their recorded deltas live in
+`docs/tier2-pin.md`; S4 fixtures and the extended parity cases live under
+`testdata/parity/`.
 
 ## Open questions (decided)
 

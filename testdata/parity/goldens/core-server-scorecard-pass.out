@@ -1,0 +1,13 @@
+Answer-quality scorecard PASSED
+  run   : parity-pass
+  score : 100
+--------------------------------------------
+  [ok] family_coverage: all major answer families captured
+  [ok] usefulness: all captured prompts passed
+  [ok] truth_honesty: all captured prompts passed
+  [ok] citation_coverage: all captured prompts passed
+  [ok] boundedness: all captured prompts passed
+  [ok] narration_fallback: all captured prompts passed
+  [ok] parity: all captured prompts passed
+  [ok] follow_up_usefulness: all captured prompts passed
+  [ok] publish_safety: all captured prompts passed

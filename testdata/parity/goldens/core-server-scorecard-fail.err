@@ -1,0 +1,1 @@
+answer-quality scorecard FAILED: truth_honesty: service_story: api result missing truth class; citation_coverage: service_story: api result has no citation handles; boundedness: service_story: api partial/truncated result has no limitation or continuation; follow_up_usefulness: service_story: api partial/truncated result has no next call

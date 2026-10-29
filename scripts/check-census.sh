@@ -32,9 +32,14 @@ check_count cli/playbooks 1
 check_count cli/change 2
 check_count cli/entitymap 2
 check_count cli/freshness 2
-check_count cli/config 2
+check_count cli/config 1
 check_count cli/reposelector 1
-check_count envregistry 1
+check_count cli/mcpsetup 3
+check_count cli/opdigest 1
+check_count cli/component 1
+check_count cli/evidredact 1
+check_count urlredact 1
+check_count cli/resultshape 1
 check_count buildinfo 1
 
 # 2. forbidden packages and core imports nowhere in any populated closure.
