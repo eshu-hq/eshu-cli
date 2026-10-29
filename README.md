@@ -15,12 +15,27 @@ Day-one seed only: the versioned contract `eshu-cli` will publish, copied verbat
 
 No Go code moves in this seed. The cobra tree, `go/internal/cli/*`, and the env registry stay in `eshu` until the cutover PR proves parity and records production acceptance.
 
-## Open questions (NOT_CHECKED)
+## Open questions (decided)
 
-Carried from the source inventory and contract; each blocks the reviewed cutover, not this seed.
+Decided by the arbiter verdict recorded at
+`eshu-hq/eshu` `docs/internal/evidence/8874-cli-open-questions-verdict.md`
+(landed via `eshu-hq/eshu#9504`); each decision blocks the reviewed
+cutover, not this seed.
 
-- Oldest/newest supported core/CLI version pairs for an independently released CLI, plus credential handling and vulnerability-response ownership for the extracted stream.
-- Distribution of the demo Compose overlay and question manifest to an installed `eshu-cli` outside a checkout (embed, pinned fetch, or deploy-repo checkout), decided with `#8871`.
-- Name, versioning, and discovery of the future core `local-host` entrypoint that would let the retained `graph`/`watch` verbs appear in `eshu-cli`.
+- Version pairs and credentials: one tested pair at the first
+  independent release, recorded only in the eshu-deploy compatibility
+  matrix; no runtime version enforcement on day one; the
+  `~/.eshu/.env` (0600) filesystem contract moves with the CLI.
+  Vulnerability-response ownership (`SECURITY.md` here) is named
+  before the first independent release.
+- Demo distribution: the question manifest embeds in `eshu-cli`
+  (`//go:embed`, on-disk file wins, CI byte-diff against the core
+  spec); the Compose overlay stays a deploy-repo checkout owned by
+  `#8871`.
+- `local-host`: `eshu local-host` in the core binary, protocol
+  `local-host/v1`, with a redacted v1 discovery record (never
+  `OwnerRecord`); `graph`/`watch`/`w` stay RETAIN until v1 ships,
+  then STUB entries (exit 1) are the sanctioned parity exception
+  alongside the demo miss-text update.
 
 Independent release, QA EKS deployment, rollback rehearsal, and production acceptance are also NOT_CHECKED.
