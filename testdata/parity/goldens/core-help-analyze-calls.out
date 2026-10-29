@@ -1,0 +1,18 @@
+Show what a function calls
+
+Usage:
+  eshu analyze calls <function> [flags]
+
+Flags:
+      --api-key string       API key for authentication
+      --depth int            Maximum traversal depth for transitive callees (default 5)
+  -h, --help                 help for calls
+      --profile string       Config profile name
+      --repo string          Optional repository selector (ID, name, slug, or path)
+      --repo-id string       Optional repository ID filter
+      --service-url string   API service URL (overrides config)
+      --transitive           Include transitive callees
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

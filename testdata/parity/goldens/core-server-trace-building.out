@@ -1,0 +1,10 @@
+{
+  "data": null,
+  "truth": {
+    "parity": "stub"
+  },
+  "error": {
+    "code": "index_building",
+    "message": "parity ENV_BUILDING"
+  }
+}

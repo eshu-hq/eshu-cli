@@ -1,0 +1,25 @@
+Graph relationships and code quality analysis
+
+Usage:
+  eshu analyze [command]
+
+Available Commands:
+  callers     Show what calls a function
+  calls       Show what a function calls
+  chain       Show call chain between two functions
+  complexity  Show function complexity
+  dead-code   Find potentially unused functions and classes
+  deps        Show import and dependency relationships
+  divergence  Find parallel function implementations
+  overrides   Find implementations across classes
+  tree        Show inheritance hierarchy
+  variable    Show variable definitions and usage
+
+Flags:
+  -h, --help   help for analyze
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu analyze [command] --help" for more information about a command.

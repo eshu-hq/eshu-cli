@@ -1,0 +1,3 @@
+# Unified-diff oracles reproduce Go source context verbatim (tabs, blank
+# context lines), so whitespace checks do not apply to them.
+testdata/parity/deltas/**/*.patch -whitespace

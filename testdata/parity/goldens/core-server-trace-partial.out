@@ -1,0 +1,10 @@
+{
+  "data": null,
+  "truth": {
+    "parity": "stub"
+  },
+  "error": {
+    "code": "partial",
+    "message": "parity ENV_PARTIAL"
+  }
+}

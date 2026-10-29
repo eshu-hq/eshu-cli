@@ -1,0 +1,22 @@
+Map a bounded code-to-cloud entity neighborhood
+
+Usage:
+  eshu map --from <thing> [flags]
+
+Flags:
+      --api-key string        API key for authentication
+      --depth int             Maximum relationship depth to traverse (default 1)
+      --env string            Environment selector used to narrow runtime/resource relationships
+      --from string           Entity handle to map, such as terraform/aws_lb.main or workload:checkout
+  -h, --help                  help for map
+      --json                  Write the canonical entity map envelope as JSON
+      --limit int             Maximum mapped relationships to return (default 25)
+      --profile string        Config profile name
+      --relationship string   Relationship type filter, such as DEPENDS_ON or PROVISIONS_DEPENDENCY_FOR
+      --repo string           Repository selector used to narrow resolution
+      --service-url string    API service URL (overrides config)
+      --type string           Entity type hint such as service, repository, terraform_resource, k8s_resource, or file
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

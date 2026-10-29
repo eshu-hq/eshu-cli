@@ -1,0 +1,10 @@
+{
+  "data": null,
+  "truth": {
+    "parity": "stub"
+  },
+  "error": {
+    "code": "ambiguous",
+    "message": "parity ENV_AMBIGUOUS"
+  }
+}

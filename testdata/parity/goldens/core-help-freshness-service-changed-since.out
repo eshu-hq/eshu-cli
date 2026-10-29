@@ -1,0 +1,19 @@
+Summarize what changed for a service since a prior service generation
+
+Usage:
+  eshu freshness service-changed-since [flags]
+
+Flags:
+      --api-key string               API key for authentication
+  -h, --help                         help for service-changed-since
+      --json                         Write the canonical service changed-since envelope as JSON
+      --profile string               Config profile name
+      --sample-limit int             Maximum sample handles per classification per family (max 200) (default 25)
+      --scope-id string              Ingestion scope whose lineage of the service to diff; needed only when the service has a lineage in more than one readable scope
+      --service-id string            Exact service id whose evidence lineage to diff (required)
+      --service-url string           API service URL (overrides config)
+      --since-generation-id string   Prior service materialization generation id to diff from (required)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

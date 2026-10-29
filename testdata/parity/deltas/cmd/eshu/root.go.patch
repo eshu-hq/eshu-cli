@@ -1,0 +1,31 @@
+--- core/go/cmd/eshu/root.go
++++ dest/cmd/eshu/root.go
+@@ -24,8 +24,8 @@
+ 	Long: `Eshu is both an MCP server and a CLI toolkit for code analysis.
+ 
+ For MCP Server Mode (AI assistants):
+-  1. Run 'eshu mcp setup' to configure your IDE
+-  2. Run 'eshu mcp start' to launch the server
++  Use the Eshu core binary's MCP setup to configure your IDE
++  (this CLI's "mcp" family stays core-only in Tier-1)
+ 
+ For CLI Toolkit Mode (direct usage):
+   eshu index .     -- Index your current directory
+@@ -52,7 +52,6 @@
+ 
+ 	rootCmd.AddCommand(versionCmd)
+ 	rootCmd.AddCommand(helpCmd)
+-	rootCmd.AddCommand(doctorCmd)
+ }
+ 
+ var versionCmd = &cobra.Command{
+@@ -73,9 +72,3 @@
+ 	Short: "Show the main help message",
+ 	RunE:  func(cmd *cobra.Command, args []string) error { return rootCmd.Help() },
+ }
+-
+-var doctorCmd = &cobra.Command{
+-	Use:   "doctor",
+-	Short: "Run diagnostics to check system health and configuration",
+-	RunE:  runDoctor,
+-}

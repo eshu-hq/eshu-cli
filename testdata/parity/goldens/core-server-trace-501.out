@@ -1,0 +1,8 @@
+{
+  "data": null,
+  "truth": null,
+  "error": {
+    "code": "unsupported_capability",
+    "message": "API error 501: {\"error\": {\"code\": \"parity\", \"message\": \"HOSTILE_501\"}}"
+  }
+}

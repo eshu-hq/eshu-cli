@@ -1,0 +1,16 @@
+{
+  "data": {
+    "resolved": {
+      "playbook_id": "",
+      "version": "",
+      "prompt_family": "",
+      "calls": null,
+      "failure_modes": null
+    }
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  },
+  "error": null
+}

@@ -1,0 +1,18 @@
+Trace how a service gets from source code to runtime
+
+Usage:
+  eshu trace service <name> [flags]
+
+Flags:
+      --api-key string       API key for authentication
+      --env string           Runtime environment selector to disambiguate a service name
+  -h, --help                 help for service
+      --json                 Write the canonical service trace envelope as JSON
+      --profile string       Config profile name
+      --repo string          Repository selector to disambiguate a service name
+      --service-id string    Exact service or workload id to trace instead of the display name
+      --service-url string   API service URL (overrides config)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

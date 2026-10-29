@@ -1,0 +1,20 @@
+Summarize what changed since a prior generation or instant
+
+Usage:
+  eshu freshness changed-since [flags]
+
+Flags:
+      --api-key string               API key for authentication
+  -h, --help                         help for changed-since
+      --json                         Write the canonical changed-since envelope as JSON
+      --profile string               Config profile name
+      --repository string            Canonical repository id (required unless --scope-id is set)
+      --sample-limit int             Maximum sample handles per classification per category (max 200) (default 25)
+      --scope-id string              Exact ingestion scope id (required unless --repository is set)
+      --service-url string           API service URL (overrides config)
+      --since-generation-id string   Prior generation id to diff from
+      --since-observed-at string     RFC3339 instant; diff from the generation observed at or before this time
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

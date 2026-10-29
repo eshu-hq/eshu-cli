@@ -1,0 +1,12 @@
+{
+  "data": {
+    "parity": "ok",
+    "path": "/api/v0/freshness/changed-since?repository=r&sample_limit=25",
+    "token": "SECRET-VALUE"
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  },
+  "error": null
+}

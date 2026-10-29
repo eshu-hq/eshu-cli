@@ -1,0 +1,11 @@
+{
+  "data": {
+    "parity": "ok",
+    "path": "/api/v0/code/relationships",
+    "token": "SECRET-VALUE"
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  }
+}

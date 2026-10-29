@@ -1,0 +1,11 @@
+List all indexed repositories
+
+Usage:
+  eshu list [flags]
+
+Flags:
+  -h, --help   help for list
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

@@ -1,0 +1,15 @@
+Resolve a query playbook into bounded calls
+
+Usage:
+  eshu playbooks resolve <playbook-id> [flags]
+
+Flags:
+      --api-key string       API key for authentication
+  -h, --help                 help for resolve
+      --input stringArray    Playbook input as key=value; repeat for multiple inputs
+      --profile string       Config profile name
+      --service-url string   API service URL (overrides config)
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

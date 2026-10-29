@@ -1,0 +1,159 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2025-2026 eshu-hq
+
+package main
+
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+	"io"
+	"net/http"
+	"os"
+	"strings"
+	"time"
+
+	"github.com/eshu-hq/eshu-cli/internal/cli/apierr"
+	cliconfig "github.com/eshu-hq/eshu-cli/internal/cli/config"
+)
+
+const eshuEnvelopeMIMEType = "application/eshu.envelope+json"
+
+// APIClient wraps HTTP calls to the Go API.
+type APIClient struct {
+	BaseURL    string
+	APIKey     string
+	HTTPClient *http.Client
+}
+
+type apiHTTPError struct {
+	StatusCode int
+	Body       string
+}
+
+// apiHTTPError is the CLI's transport error, and it stays unexported: only its
+// status code crosses the package boundary, through apierr.HTTPStatusError.
+// The assertion turns a rename or signature change here into a build failure
+// instead of silently un-classifying every internal/cli caller.
+var _ apierr.HTTPStatusError = (*apiHTTPError)(nil)
+
+func (e *apiHTTPError) Error() string {
+	return fmt.Sprintf("API error %d: %s", e.StatusCode, e.Body)
+}
+
+// HTTPStatusCode returns the HTTP status the API responded with. It carries
+// the "HTTP" prefix because a method cannot share the StatusCode field's name,
+// and because it reads unambiguously in an internal/cli package that has no
+// other status codes in scope.
+func (e *apiHTTPError) HTTPStatusCode() int {
+	return e.StatusCode
+}
+
+// NewAPIClient creates a client from environment/config.
+// Resolution order: flags -> env -> config file.
+func NewAPIClient(serviceURL, apiKey, profile string) *APIClient {
+	base := serviceURL
+	if base == "" {
+		base = cliconfig.ResolveValue("ESHU_SERVICE_URL", profile)
+	}
+	if base == "" {
+		base = os.Getenv("ESHU_SERVICE_URL")
+	}
+	if base == "" {
+		base = "http://localhost:8080"
+	}
+	base = strings.TrimRight(base, "/")
+
+	key := apiKey
+	if key == "" {
+		key = cliconfig.ResolveValue("ESHU_API_KEY", profile)
+	}
+	if key == "" {
+		key = os.Getenv("ESHU_API_KEY")
+	}
+
+	timeoutStr := os.Getenv("ESHU_REMOTE_TIMEOUT_SECONDS")
+	timeout := 30 * time.Second
+	if timeoutStr != "" {
+		if d, err := time.ParseDuration(timeoutStr + "s"); err == nil {
+			timeout = d
+		}
+	}
+
+	return &APIClient{
+		BaseURL: base,
+		APIKey:  key,
+		HTTPClient: &http.Client{
+			Timeout: timeout,
+		},
+	}
+}
+
+// Get performs a GET request and decodes JSON response.
+func (c *APIClient) Get(path string, result any) error {
+	return c.do("GET", path, nil, result, "")
+}
+
+// GetEnvelope performs a GET request that asks for Eshu's canonical envelope.
+func (c *APIClient) GetEnvelope(path string, result any) error {
+	return c.do("GET", path, nil, result, eshuEnvelopeMIMEType)
+}
+
+// Post performs a POST request with JSON body and decodes JSON response.
+func (c *APIClient) Post(path string, body, result any) error {
+	return c.do("POST", path, body, result, "")
+}
+
+// PostEnvelope performs a POST request that asks for Eshu's canonical envelope.
+func (c *APIClient) PostEnvelope(path string, body, result any) error {
+	return c.do("POST", path, body, result, eshuEnvelopeMIMEType)
+}
+
+func (c *APIClient) do(method, path string, body, result any, accept string) error {
+	url := c.BaseURL + path
+
+	var bodyReader io.Reader
+	if body != nil {
+		data, err := json.Marshal(body)
+		if err != nil {
+			return fmt.Errorf("marshal request: %w", err)
+		}
+		bodyReader = bytes.NewReader(data)
+	}
+
+	req, err := http.NewRequest(method, url, bodyReader)
+	if err != nil {
+		return fmt.Errorf("create request: %w", err)
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if accept != "" {
+		req.Header.Set("Accept", accept)
+	}
+	if c.APIKey != "" {
+		req.Header.Set("Authorization", "Bearer "+c.APIKey)
+	}
+
+	resp, err := c.HTTPClient.Do(req)
+	if err != nil {
+		return fmt.Errorf("request failed: %w", err)
+	}
+	defer func() {
+		_ = resp.Body.Close()
+	}()
+
+	respBody, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return fmt.Errorf("read response: %w", err)
+	}
+
+	if resp.StatusCode >= 400 {
+		return &apiHTTPError{StatusCode: resp.StatusCode, Body: string(respBody)}
+	}
+
+	if result != nil {
+		if err := json.Unmarshal(respBody, result); err != nil {
+			return fmt.Errorf("decode response: %w", err)
+		}
+	}
+	return nil
+}

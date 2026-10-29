@@ -1,0 +1,11 @@
+{
+  "data": {
+    "parity": "ok",
+    "path": "/api/v0/repositories",
+    "token": "SECRET-VALUE"
+  },
+  "truth": {
+    "parity": "stub",
+    "token": "SECRET-VALUE"
+  }
+}

@@ -13,7 +13,30 @@ Day-one seed only: the versioned contract `eshu-cli` will publish, copied verbat
 - `docs/contract/PROVENANCE.md`: source SHA, per-file hashes, what stays in `eshu`, and the pinning tests that guard the contract.
 - `scripts/check-parity.sh` plus the `parity` CI lane: re-verify the verbatim files against `docs/contract/PARITY.sha256`.
 
-No Go code moves in this seed. The cobra tree, `go/internal/cli/*`, and the env registry stay in `eshu` until the cutover PR proves parity and records production acceptance.
+## Tier-1 population (S3)
+
+The first population carries the Tier-1 set from the population-scope
+verdict (`eshu-hq/eshu`
+`docs/internal/evidence/8874-cli-population-scope-verdict.md`): the
+pure-remote/mechanical commands `analyze`, `find`, `query`, `list`/`ls`,
+`stats`, `index-status`, `change`, `map`, `trace`, `freshness`,
+`playbooks`, `ecosystem overview`, `completion`, `help`, `version`,
+`neo4j` guidance, the `index` binary-discovery entrypoint, and the
+pre-existing removed-command STUBs — plus E3 STUBs for every Tier-2/Tier-3
+family, all pointing at the core binary.
+
+- `cmd/eshu/`: the Tier-1 cobra tree (`doc.go` describes the scope).
+- `internal/`: the small-closure libraries the tree owns (`apierr`,
+  `trace`, `change`, `entitymap`, `freshness`, `playbooks`, `config`,
+  `reposelector`, `envregistry`, `buildinfo`), pinned to the core commit
+  in `docs/tier1-pin.md` under the moved-package freeze.
+- Proof: `scripts/check-census.sh` (closures, pins, credentials),
+  `scripts/check-nofork.sh` (freeze), `scripts/check-tier1-parity.sh`
+  with `testdata/parity/goldens/` (help bytes, `--json` envelopes,
+  exit codes 0-6), and `TestCredentialProfileRoundTrip` plus the
+  redaction canaries in `go test ./...`.
+
+In-tree removal in `eshu` still waits for production acceptance.
 
 ## Open questions (decided)
 
