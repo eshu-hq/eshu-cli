@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/eshu-hq/eshu/sdk/go/apicontract"
+	"github.com/eshu-hq/eshu-sdk/wirecontract"
 )
 
 // VerifyStage names one independently-reported verification step.
@@ -75,9 +75,9 @@ type QueryProber interface {
 
 // toolLister returns the visible MCP tool definitions. The thin CLI carries
 // no embedded tool surface, so the caller decodes the deployment's remote
-// tools/list response (apicontract.ToolDefinition) and verification reuses
+// tools/list response (wirecontract.ToolDefinition) and verification reuses
 // that. Only the count is used, to prove the surface is non-empty.
-type toolLister func() []apicontract.ToolDefinition
+type toolLister func() []wirecontract.ToolDefinition
 
 // RunVerification executes the staged checks and returns the report. snippet is
 // the generated config (empty means generation failed). health and query may be
@@ -89,7 +89,7 @@ type toolLister func() []apicontract.ToolDefinition
 // for token posture without a personal token) so a hosted skip does not
 // mislabel itself with the local-stdio default. An empty querySkipReason keeps
 // that default.
-func RunVerification(snippet string, tools func() []apicontract.ToolDefinition, health HealthProber, query QueryProber, querySkipReason string) VerifyReport {
+func RunVerification(snippet string, tools func() []wirecontract.ToolDefinition, health HealthProber, query QueryProber, querySkipReason string) VerifyReport {
 	var report VerifyReport
 
 	// Stage 1: config generated.

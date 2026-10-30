@@ -8,9 +8,10 @@ Tier-2 amendment: the freeze re-pins at `78c5b3d1a4b7f5309a4df6eed4487162634c401
 both SHAs, so the Tier-1 rows stay valid at the new pin. Four rows changed
 content in Tier-2 (`cmd/eshu/output.go`: nolint guards removed, callers
 landed; `cmd/eshu/root.go`: Long routes MCP setup at this CLI;
-`internal/cli/config/validate.go` + `doc.go`: apicontract repoint) and carry
-their new hashes; `internal/envregistry` rows are historical (package retired
-in Tier-2). Every file below is a pinned copy:
+`internal/cli/config/validate.go` + `doc.go`: wirecontract repoint, via
+`apicontract` at Tier-2 and the published `wirecontract` tag since
+eshu-hq/eshu#9631) and carry their new hashes; `internal/envregistry` rows
+are historical (package retired in Tier-2). Every file below is a pinned copy:
 byte-identical to the core path at the pin except the module import-path
 repointing `github.com/eshu-hq/eshu/go/internal` ->
 `github.com/eshu-hq/eshu-cli/internal`, plus three recorded deltas
@@ -72,9 +73,9 @@ this table, re-capture Tier-1 parity goldens, and re-run the full review.
 | `internal/cli/change/render.go` | `go/internal/cli/change/render.go` | 950be348d12151afe30f2bf9f9bbb4913b5d3ed611ac3b46524578b4c16652c6 |
 | `internal/cli/change/request.go` | `go/internal/cli/change/request.go` | 42558831fb485280741cfdd5f0d52af46de2af318b01c7ee5430215c53d67aa0 |
 | `internal/cli/config/backend.go` | `go/internal/cli/config/backend.go` | 41e3bf7aec6f7ee4a74420098a0d6b61ed54fed7612301c52df31d0d4a9aa7d9 |
-| `internal/cli/config/doc.go` | `go/internal/cli/config/doc.go` | 6bf598c19ab721d04910ce0e2fa1b44d861e433ae69ab362bd9fad4f775caae0 |
+| `internal/cli/config/doc.go` | `go/internal/cli/config/doc.go` | 49632c472da719d977cd3b3fcec7c8c1fe08997cbd01ef892d4b5db4962b18ce |
 | `internal/cli/config/env.go` | `go/internal/cli/config/env.go` | cf89e376d98050e57ce06504eb7c3f8417afcbb01531fb6a56cef836a33e1eb9 |
-| `internal/cli/config/validate.go` | `go/internal/cli/config/validate.go` | 8df9e0520a04e83684f8852e8cebed213257c9cd9785c206e71a2e791537856a |
+| `internal/cli/config/validate.go` | `go/internal/cli/config/validate.go` | 585dcf8beedc76a2cec9cdfc30a227623fce0667fb9babfd7de7d2915493ec15 |
 | `internal/cli/entitymap/doc.go` | `go/internal/cli/entitymap/doc.go` | db264953ba5a5bc806b98b21f6a13bf7ca3cf7a4ccf63caf85fd155957e68dc1 |
 | `internal/cli/entitymap/entitymap.go` | `go/internal/cli/entitymap/entitymap.go` | 4f898e789781801a6044b2a54c8579fd1455758915b4a179b587541d4aacaee5 |
 | `internal/cli/entitymap/redaction_test.go` | `go/internal/cli/entitymap/redaction_test.go` | 94ae133fbe59be7abea32e908332e195b039808fdd038e1db6bd3c906aa496e0 |

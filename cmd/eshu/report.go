@@ -17,7 +17,7 @@ import (
 
 	"github.com/eshu-hq/eshu-cli/internal/cli/opdigest"
 	"github.com/eshu-hq/eshu-cli/internal/urlredact"
-	"github.com/eshu-hq/eshu/sdk/go/apicontract"
+	"github.com/eshu-hq/eshu-sdk/wirecontract"
 )
 
 // reportCaptureInput mirrors the S4 capture endpoint's request shape
@@ -25,15 +25,15 @@ import (
 // The server decodes it into its own struct, so this stays a wire mirror,
 // never a logic copy: redaction, digestion, and validation run server-side.
 type reportCaptureInput struct {
-	Surface         string                       `json:"surface"`
-	Target          string                       `json:"target"`
-	Method          string                       `json:"method,omitempty"`
-	Params          map[string]any               `json:"params,omitempty"`
-	Profile         string                       `json:"profile,omitempty"`
-	ReporterNote    string                       `json:"reporter_note,omitempty"`
-	Envelope        apicontract.ResponseEnvelope `json:"envelope"`
-	Truncated       bool                         `json:"truncated,omitempty"`
-	IncludePayloads bool                         `json:"include_payloads,omitempty"`
+	Surface         string                        `json:"surface"`
+	Target          string                        `json:"target"`
+	Method          string                        `json:"method,omitempty"`
+	Params          map[string]any                `json:"params,omitempty"`
+	Profile         string                        `json:"profile,omitempty"`
+	ReporterNote    string                        `json:"reporter_note,omitempty"`
+	Envelope        wirecontract.ResponseEnvelope `json:"envelope"`
+	Truncated       bool                          `json:"truncated,omitempty"`
+	IncludePayloads bool                          `json:"include_payloads,omitempty"`
 }
 
 // reportValidateVerdict mirrors the S4 validate endpoint's verdict.
@@ -310,13 +310,13 @@ func checkReportTargetCredentials(flag, value string) error {
 // fetchReportEnvelope issues the reporter's query and decodes it into the
 // canonical response envelope, through the same envelope calls every other
 // envelope-backed verb uses.
-func fetchReportEnvelope(client *APIClient, endpoint, method string, params map[string]any) (apicontract.ResponseEnvelope, error) {
-	var envelope apicontract.ResponseEnvelope
+func fetchReportEnvelope(client *APIClient, endpoint, method string, params map[string]any) (wirecontract.ResponseEnvelope, error) {
+	var envelope wirecontract.ResponseEnvelope
 	switch method {
 	case "GET":
 		path, targetParams, err := splitReportTarget(endpoint)
 		if err != nil {
-			return apicontract.ResponseEnvelope{}, err
+			return wirecontract.ResponseEnvelope{}, err
 		}
 		values := url.Values{}
 		for key, value := range targetParams {
@@ -337,18 +337,18 @@ func fetchReportEnvelope(client *APIClient, endpoint, method string, params map[
 			requestPath += "?" + values.Encode()
 		}
 		if err := client.GetEnvelope(requestPath, &envelope); err != nil {
-			return apicontract.ResponseEnvelope{}, reportRequestError(err, path)
+			return wirecontract.ResponseEnvelope{}, reportRequestError(err, path)
 		}
 	case "POST":
 		postPath, _, err := splitReportTarget(endpoint)
 		if err != nil {
-			return apicontract.ResponseEnvelope{}, err
+			return wirecontract.ResponseEnvelope{}, err
 		}
 		if err := client.PostEnvelope(endpoint, params, &envelope); err != nil {
-			return apicontract.ResponseEnvelope{}, reportRequestError(err, postPath)
+			return wirecontract.ResponseEnvelope{}, reportRequestError(err, postPath)
 		}
 	default:
-		return apicontract.ResponseEnvelope{}, fmt.Errorf("unsupported --method %q: want GET or POST", method)
+		return wirecontract.ResponseEnvelope{}, fmt.Errorf("unsupported --method %q: want GET or POST", method)
 	}
 	return envelope, nil
 }
@@ -420,7 +420,7 @@ func reportSafeErrorPath(path string) string {
 
 // reportEnvelopeProfile returns the query profile the envelope's truth
 // reports, or empty when no truth envelope is present.
-func reportEnvelopeProfile(envelope apicontract.ResponseEnvelope) string {
+func reportEnvelopeProfile(envelope wirecontract.ResponseEnvelope) string {
 	if envelope.Truth == nil {
 		return ""
 	}
@@ -429,7 +429,7 @@ func reportEnvelopeProfile(envelope apicontract.ResponseEnvelope) string {
 
 // reportObservedTruncation looks for a top-level "truncated" boolean in the
 // captured response data.
-func reportObservedTruncation(envelope apicontract.ResponseEnvelope) bool {
+func reportObservedTruncation(envelope wirecontract.ResponseEnvelope) bool {
 	data, ok := envelope.Data.(map[string]any)
 	if !ok {
 		return false

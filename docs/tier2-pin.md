@@ -2,20 +2,25 @@
 
 Owner approval for Tier-2 CLI population recorded 2026-10-29 on the eshu
 release-prep commit (`drive/8874-tier2-population`: "Tier-2 owner-approved
-2026-10-29"). The `sdk/go/apicontract/v0.1.0` tag is **pending** (verified
-absent via `git ls-remote`; the tag cut is a maintainer act and no version
-was invented): the module is pinned at the closest shippable state, the
-Tier-2 pin below, whose module tree is byte-identical to what the tag will
-carry (the release-prep branch is docs-only).
+2026-10-29"). The Tier-2 wire import first pinned the closest shippable
+state, the Tier-2 pin below; eshu-hq/eshu#9631 repointed it at the published
+tag, leaving the core pin (frozen-file oracle) unchanged.
 
 ## Module pin
 
 - Core commit: `78c5b3d1a4b7f5309a4df6eed4487162634c4010` (eshu origin/main,
   carries S2 apicontract + S4 CLI-support endpoints).
-- `github.com/eshu-hq/eshu/sdk/go/apicontract v0.0.0-20261029223206-78c5b3d1a4b7`
-  (toolchain-derived pseudo-version at the pin; `go.sum` pins hashes).
-- Provenance: `go mod verify` clean; the module cache's `envelope.go` is
-  byte-identical to the pin tree. No `replace`, no `go.work`.
+- `github.com/eshu-hq/eshu-sdk/wirecontract v0.1.0-rc.1` (published tag;
+  `go.sum` pins hashes). Refs eshu-hq/eshu#9631, part of eshu-hq/eshu#6707.
+  Supersedes `github.com/eshu-hq/eshu/sdk/go/apicontract
+  v0.0.0-20261029223206-78c5b3d1a4b7` (toolchain-derived pseudo-version at
+  the pin, retired by this repoint).
+- Provenance: `go mod verify` clean; the module cache's `envelope.go`,
+  `tool.go`, `profile.go`, and `freshness.go` are byte-identical to the
+  retired pin tree apart from the package clause, and `env.go` differs only
+  by the package clause, the `wirecontract:` error prefix, comment-only
+  profile wording, and additive alias-shadow hardening the shipped client
+  table does not trigger. No `replace`, no `go.work`.
 
 ## Verbatim copies (decision 7 moved-package freeze)
 
@@ -44,7 +49,7 @@ test vectors (nothing in the copied set reads `BoundaryCases` /
 | `internal/cli/mcpsetup/posture.go` | 36d1a1219462f01b2e99ed012a4e5ad70d14948070bab8cfb45642eb2d49b65f |
 | `internal/cli/mcpsetup/setup.go` | 18432c848c7db0a76634c92246f91bf03cfaecd57b45616c785906e8df5fa4e8 |
 | `internal/cli/mcpsetup/snippet.go` | 280268989813acfc560c3ff58719a3f90a41a22fe74680fd77603f72925a158f |
-| `internal/cli/mcpsetup/verify.go` | c82d7f39adeff989267d9bce72220c8b8a3880853ae72406cd5e5406eed569de |
+| `internal/cli/mcpsetup/verify.go` | 3fd4f47293e4921ec1970ea54eca5159e9b0a978f3f35c4302f8ec8942495e10 |
 | `internal/cli/mcpsetup/write.go` | cfb2974a4b7931619c79559d93b8c3c50845138c45f1315d23db5259678c21fd |
 | `internal/cli/resultshape/doc.go` | ec57c94a65c38c9dcafe6c7d92cb2d7609414d134c087b2eadb4effe186576e7 |
 | `internal/cli/resultshape/shape.go` | e2ca3bf593694d87aaa3207b5236f199f4ba42b2537ab3a199658d83140fd82b |
@@ -53,8 +58,8 @@ test vectors (nothing in the copied set reads `BoundaryCases` /
 | `internal/urlredact/authority.go` | bc4b8f16749445d10d3d06e80d440a6f173789c4d4ce18fa92124704c4461058 |
 | `internal/urlredact/doc.go` | fcb8678c2f7f74522321c781284879c7d3dc08f2fa2c7b94c5ad44f975e570d7 |
 | `internal/urlredact/escape.go` | 5ec19d917823bd8c7086dda17dba7d379268774ebc214194c56b76d31368c607 |
-| `internal/cli/config/validate.go` | 8df9e0520a04e83684f8852e8cebed213257c9cd9785c206e71a2e791537856a |
-| `internal/cli/config/doc.go` | 6bf598c19ab721d04910ce0e2fa1b44d861e433ae69ab362bd9fad4f775caae0 |
+| `internal/cli/config/validate.go` | 585dcf8beedc76a2cec9cdfc30a227623fce0667fb9babfd7de7d2915493ec15 |
+| `internal/cli/config/doc.go` | 49632c472da719d977cd3b3fcec7c8c1fe08997cbd01ef892d4b5db4962b18ce |
 
 Closures (`go list -deps`, internal packages): opdigest 1, component 1,
 mcpsetup 3 (itself + resultshape + evidredact), evidredact 1, urlredact 1,
@@ -67,13 +72,14 @@ for it are historical.
 ## Recorded deltas
 
 - `internal/cli/mcpsetup/verify.go`: `mcp.ToolDefinition` ->
-  `apicontract.ToolDefinition` (the published wire type; the 497-closure
-  `mcp` root stays out); `toolLister`/comment and `toolCountDetail` reworded
-  to the remote-tools source. Patch:
+  `wirecontract.ToolDefinition` (the published wire type since eshu-hq/eshu#9631;
+  before that `apicontract.ToolDefinition`; the 497-closure `mcp` root stays
+  out); `toolLister`/comment and `toolCountDetail` reworded to the
+  remote-tools source. Patch:
   `testdata/parity/deltas/internal/cli/mcpsetup/verify.go.patch`.
-- `internal/cli/config/validate.go`: `envregistry` -> `apicontract`
+- `internal/cli/config/validate.go`: `envregistry` -> `wirecontract`
   (registry + Finding types; logic identical, messages byte-identical for
-  client-table variables). Patch:
+  client-table variables; `apicontract` before eshu-hq/eshu#9631). Patch:
   `testdata/parity/deltas/internal/cli/config/validate.go.patch`.
 - `internal/cli/config/doc.go`: prose follows the import. Patch:
   `testdata/parity/deltas/internal/cli/config/doc.go.patch`.
@@ -108,6 +114,13 @@ for it are historical.
 - `component` local verbs keep core Use/Short/Args/flags with stub bodies
   (extension-host-bound, not wire-blocked), so parent and per-verb help match
   core byte-for-byte.
+- `internal/cli/component/api.go` keeps its local envelope mirror and does
+  NOT adopt `wirecontract.ResponseEnvelope` (eshu-hq/eshu#9631 decision).
+  The mirror's `Data`/`Truth map[string]any` plus `--json` passthrough lets a
+  server-side field addition reach operators without a CLI release; the typed
+  `ResponseEnvelope` would drop unknown fields on the decode/re-marshal
+  round-trip and force rewriting every map accessor for zero wire gain. The
+  package still imports no core module.
 - Live `data_digest` parity: the capture `bundle_id` covers `created_at`, so
   the parity canon masks both; `data_digest` and the full response echo are
   compared unmasked.

@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/eshu-hq/eshu-cli/internal/cli/mcpsetup"
-	"github.com/eshu-hq/eshu/sdk/go/apicontract"
+	"github.com/eshu-hq/eshu-sdk/wirecontract"
 	"github.com/spf13/cobra"
 )
 
@@ -184,7 +184,7 @@ func mcpSetupWrite(platform *mcpsetup.Platform, req mcpsetup.SetupRequest, targe
 
 // mcpSetupVerify runs the staged verification, reusing the API client for hosted
 // reachability and the deployment's remote tools/list (decoded via
-// apicontract) for tool visibility. The thin CLI carries no embedded tool
+// wirecontract) for tool visibility. The thin CLI carries no embedded tool
 // surface, so without an endpoint bearing a credential the tools stage fails
 // closed instead of passing on a list the binary does not hold.
 //
@@ -213,7 +213,7 @@ func mcpSetupVerify(cmd *cobra.Command, platform *mcpsetup.Platform, req mcpsetu
 	var health mcpsetup.HealthProber
 	var query mcpsetup.QueryProber
 	var querySkipReason string
-	var tools func() []apicontract.ToolDefinition
+	var tools func() []wirecontract.ToolDefinition
 	if req.Mode == mcpsetup.ModeHostedHTTP {
 		client := apiClientFromCmd(cmd)
 		switch req.Posture {
@@ -246,14 +246,14 @@ func mcpSetupVerify(cmd *cobra.Command, platform *mcpsetup.Platform, req mcpsetu
 }
 
 // remoteMCPTools returns a tool lister that decodes the deployment's remote
-// tools/list response through apicontract.ToolDefinition. A transport or
+// tools/list response through wirecontract.ToolDefinition. A transport or
 // protocol failure yields no definitions, which fails the tools-visible stage
 // rather than passing it on stale data.
-func remoteMCPTools(client *APIClient) func() []apicontract.ToolDefinition {
-	return func() []apicontract.ToolDefinition {
+func remoteMCPTools(client *APIClient) func() []wirecontract.ToolDefinition {
+	return func() []wirecontract.ToolDefinition {
 		var response struct {
 			Result *struct {
-				Tools []apicontract.ToolDefinition `json:"tools"`
+				Tools []wirecontract.ToolDefinition `json:"tools"`
 			} `json:"result"`
 		}
 		if err := client.Post("/mcp/message",
