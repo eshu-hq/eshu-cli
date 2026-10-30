@@ -39,12 +39,10 @@ var tierStubFamilies = []struct {
 	{"competitive-parity", "STUB: shipped-surface validator stays in core"},
 	{"evidence", "STUB: portable bundle client stays in core"},
 	{"evidence-packet-dogfood", "STUB: packet benchmark stays in core"},
-	{"workspace", "STUB: workspace operations stay in core"},
 	{"graph", "STUB: sidecar lifecycle stays in core"},
 	{"watch", "STUB: watcher lifecycle stays in core"},
 	{"w", "STUB: shortcut for watcher lifecycle stays in core"},
 	{"admin", "STUB: core-only repair stays in core"},
-	{"doctor", "STUB: diagnostics reporter stays in core"},
 	{"install", "STUB: backend tooling install stays in core"},
 }
 

@@ -38,6 +38,10 @@ HELP_CASES=(
   "analyze analyze" "analyze-calls analyze calls" "neo4j neo4j"
   "neo4j-setup neo4j setup" "version version" "completion completion"
   "report report" "report-capture report capture" "report-validate report validate"
+  "doctor doctor"
+  "workspace workspace" "workspace-status workspace status"
+  "workspace-plan workspace plan" "workspace-sync workspace sync"
+  "workspace-index workspace index" "workspace-watch workspace watch"
   "config config" "config-show config show" "config-set config set"
   "config-reset config reset" "config-db config db" "config-validate config validate"
   "service-report service-report"
@@ -99,6 +103,7 @@ SERVER_CASES=(
   "component-inventory 0 component inventory"
   "component-inventory-json 0 component inventory --json"
   "component-diagnostics 0 component diagnostics demo.ext"
+  "workspace-status 0 workspace status"
 )
 # local cases (no server): "<case-suffix> <expected-exit> <args...>"
 LOCAL_CASES=(
@@ -127,14 +132,16 @@ LOCAL_CASES=(
 )
 # E3 stub cases (exit 1): top-level names. Tier-2 shrinks the set: report,
 # service-report, mcp, m, config, component, and answer-quality-scorecard are
-# thin now. investigation stays: its packet build is truth assembly in the
-# query closure with no build endpoint, so copying it would fork truth.
+# thin now. Tier-3 removes doctor (moved, closure 3) and workspace (thin
+# status plus removed/retained children). investigation stays: its packet
+# build is truth assembly in the query closure with no build endpoint, so
+# copying it would fork truth.
 STUB_CASES=(
   investigation scan vuln-scan
   docs demo demo-benchmark first-run first-run-benchmark
   hosted-setup hosted-onboard assistant
-  competitive-parity evidence evidence-packet-dogfood workspace graph
-  watch w admin doctor install
+  competitive-parity evidence evidence-packet-dogfood graph
+  watch w admin install
 )
 
 isolate_home() {
@@ -193,6 +200,7 @@ run_one() {
     set -e
     case "$suffix" in
       *report-capture*) canon_capture "$out" ;;
+      *local-doctor*) canon_doctor "$ESHU_HOME" <"$out" >"$out.canon" && mv "$out.canon" "$out" ;;
     esac
     if [ "$(cat "$exitf")" != "$want" ]; then
       echo "NOTE: $name exited $(cat "$exitf"), want $want"
@@ -208,6 +216,7 @@ run_one() {
   set -e
   case "$suffix" in
     *report-capture*) canon_capture "$tmp_o" ;;
+    *local-doctor*) canon_doctor "$ESHU_HOME" <"$tmp_o" >"$tmp_o.canon" && mv "$tmp_o.canon" "$tmp_o" ;;
   esac
   if [ "$got" != "$want" ]; then
     echo "FAIL(exit): $name got $got want $want"
@@ -270,6 +279,17 @@ capture_stubs() {
   done
 }
 
+# canon_doctor rewrites the isolated ESHU_HOME out of the doctor report. The
+# home dir is a fresh mktemp per run (missing .env by design), so the raw
+# bytes pin the machine that captured them; the placeholder keeps the
+# core-vs-dest comparison on the report shape instead of the temp path.
+canon_doctor() {
+  local home="$1"
+  local esc
+  esc="$(printf '%s' "$home" | sed 's/[][\\.*^$/]/\\&/g')"
+  sed "s|$esc|__ESHU_HOME__|g"
+}
+
 # E4 index cases need PATH surgery without breaking tool lookup: run the
 # binary through absolute /usr/bin/env so mkdir/cmp/diff keep working.
 # The index verb prints the absolute target directory, so stdout is
@@ -329,6 +349,19 @@ capture_e4() {
   rm -f "$tmp_o" "$tmp_e"
 }
 
+# Tier-3 doctor case runs in a clean room (env -i): the report names the
+# config directory, PATH-resolved service binaries, the probe target, and the
+# configured credentials, so the golden must not depend on the operator's
+# HOME, PATH, or ESHU_*. ESHU_HOME points at the isolated dir (missing by
+# design), PATH pins /usr/bin:/bin (no service binaries), and the probe
+# targets the stub server, which answers /health with 200.
+capture_doctor() {
+  local bin="$1" prefix="$2"
+  EXTRA_ENV=(-i "ESHU_HOME=$ESHU_HOME" "ESHU_SERVICE_URL=http://127.0.0.1:$PORT" PATH=/usr/bin:/bin)
+  run_one "$bin" "$prefix" "local-doctor" 0 doctor
+  EXTRA_ENV=()
+}
+
 # Tier-2 config cases run in a clean room (env -i): `config validate` reads
 # the ambient process environment, so the golden must not depend on whatever
 # ESHU_* the operator happens to export. The reference case pins the
@@ -380,6 +413,7 @@ case "$CMD" in
     trap stop_server EXIT
     capture_server "$BIN" core
     capture_local "$BIN" core
+    capture_doctor "$BIN" core
     capture_config "$BIN" core
     ;;
   capture-cli)
@@ -406,6 +440,7 @@ case "$CMD" in
     trap stop_server EXIT
     capture_server "$BIN" core
     capture_local "$BIN" core
+    capture_doctor "$BIN" core
     capture_config "$BIN" core
     capture_verify "$BIN" cli
     capture_stubs "$BIN" cli

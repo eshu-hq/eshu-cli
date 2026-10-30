@@ -34,13 +34,18 @@ check_count cli/entitymap 2
 check_count cli/freshness 2
 check_count cli/config 1
 check_count cli/reposelector 1
-check_count cli/mcpsetup 3
+check_count cli/mcpsetup 4
 check_count cli/opdigest 1
 check_count cli/component 1
-check_count cli/evidredact 1
+check_count cli/evidredact 2
 check_count urlredact 1
 check_count cli/resultshape 1
+check_count cli/doctor 3
 check_count buildinfo 1
+# Tier-3 note: evidredact 1->2 and mcpsetup 3->4 come from the endpoint.go
+# move (Endpoint walks urlredact.Query). Core shows the same edge:
+# go/internal/cli/evidredact closes over urlredact plus itself at the pin.
+# No new forbidden package; the closure stays urlredact-only beyond itself.
 
 # 2. forbidden packages and core imports nowhere in any populated closure.
 FORBIDDEN="query|mcp|serviceintel|doctruth|component|storage|eshulocal|localsupervisor"
