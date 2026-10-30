@@ -46,14 +46,12 @@ clients for `report` (digest plus capture/validate through the S4
 endpoints), `service-report` (compose), `answer-quality-scorecard`
 (score), `config` (validate against the published client table),
 `component` inventory/diagnostics, and `mcp`/`m` setup (remote tools/list
-decoded via `apicontract.ToolDefinition`). `investigation export` stays
+decoded via `wirecontract.ToolDefinition`). `investigation export` stays
 stubbed: its packet build is truth assembly with no build endpoint.
-The published `sdk/go/apicontract` module is pinned in `go.mod`
-(`docs/tier2-pin.md`; the `v0.1.0` tag is pending, so the pin is the
-toolchain-derived pseudo-version at the Tier-2 core commit, never an
-invented version). New verbatim copies and their recorded deltas live in
-`docs/tier2-pin.md`; S4 fixtures and the extended parity cases live under
-`testdata/parity/`.
+The published `eshu-sdk/wirecontract` module is pinned in `go.mod`
+(`docs/tier2-pin.md`; Refs eshu-hq/eshu#9631). New verbatim copies and
+their recorded deltas live in `docs/tier2-pin.md`; S4 fixtures and the
+extended parity cases live under `testdata/parity/`.
 
 ## Open questions (decided)
 

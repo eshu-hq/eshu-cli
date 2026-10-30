@@ -9,14 +9,14 @@ import (
 	"testing"
 
 	cliconfig "github.com/eshu-hq/eshu-cli/internal/cli/config"
-	"github.com/eshu-hq/eshu/sdk/go/apicontract"
+	"github.com/eshu-hq/eshu-sdk/wirecontract"
 )
 
 // validateTestRegistry builds the published client-table registry the thin
 // command validates against.
-func validateTestRegistry(t *testing.T) *apicontract.Registry {
+func validateTestRegistry(t *testing.T) *wirecontract.Registry {
 	t.Helper()
-	registry, err := apicontract.New(apicontract.ClientEntries())
+	registry, err := wirecontract.New(wirecontract.ClientEntries())
 	if err != nil {
 		t.Fatalf("New(ClientEntries()) error = %v", err)
 	}

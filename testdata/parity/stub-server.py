@@ -73,7 +73,7 @@ class Handler(BaseHTTPRequestHandler):
                 )
 
         # Tier-2: MCP tools/list answers the deployment's tool surface, decoded
-        # by the thin CLI via apicontract.ToolDefinition.
+        # by the thin CLI via wirecontract.ToolDefinition.
         if self.path == "/mcp/message" and '"method":"tools/list"' in body.replace(" ", ""):
             return self._send(
                 200,

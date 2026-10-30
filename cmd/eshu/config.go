@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	cliconfig "github.com/eshu-hq/eshu-cli/internal/cli/config"
-	"github.com/eshu-hq/eshu/sdk/go/apicontract"
+	"github.com/eshu-hq/eshu-sdk/wirecontract"
 	"github.com/spf13/cobra"
 )
 
@@ -109,7 +109,7 @@ func init() {
 // runConfigValidate is the process-wiring half of `eshu config validate`: it
 // reads the two cobra flags, resolves the command's output stream, and
 // snapshots the real process environment. The check itself runs against the
-// published apicontract client table, so the thin CLI validates exactly the
+// published wirecontract client table, so the thin CLI validates exactly the
 // variables it owns; the full platform table stays core-side.
 func runConfigValidate(cmd *cobra.Command, _ []string) error {
 	if reference, _ := cmd.Flags().GetBool("reference"); reference {
@@ -117,7 +117,7 @@ func runConfigValidate(cmd *cobra.Command, _ []string) error {
 		return nil
 	}
 
-	registry, err := apicontract.New(apicontract.ClientEntries())
+	registry, err := wirecontract.New(wirecontract.ClientEntries())
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func runConfigValidate(cmd *cobra.Command, _ []string) error {
 // Registry.Entries order (subsystem, then name), the same order the registry
 // round-trips through.
 func renderConfigReference() string {
-	registry, err := apicontract.New(apicontract.ClientEntries())
+	registry, err := wirecontract.New(wirecontract.ClientEntries())
 	if err != nil {
 		return ""
 	}

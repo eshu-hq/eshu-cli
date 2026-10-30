@@ -79,7 +79,7 @@ func TestMCPSetupPrintsLocalSnippet(t *testing.T) {
 }
 
 // TestMCPSetupVerifyHosted pins the hosted --verify flow against the stub
-// deployment: health, remote tools/list (decoded via apicontract), and the
+// deployment: health, remote tools/list (decoded via wirecontract), and the
 // token-posture first query all run, and the report is all-OK.
 func TestMCPSetupVerifyHosted(t *testing.T) {
 	var queryAuth string
