@@ -1,0 +1,11 @@
+Removed: use eshu index <path> or eshu admin reindex instead
+
+Usage:
+  eshu workspace sync <path> [flags]
+
+Flags:
+  -h, --help   help for sync
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

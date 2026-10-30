@@ -16,10 +16,15 @@
 # (verified by diffing all mapped files across both SHAs), so one pin covers
 # both tiers. Tier-2 rows live in docs/tier2-pin.md; the offline check reads
 # both pin files.
+#
+# Tier-3 reuses the same pin SHA: every Tier-3 source (doctor, evidredact
+# endpoint, urlredact query) is byte-identical between the Tier-2 pin and
+# eshu origin/main, verified per file before the copy. Tier-3 rows live in
+# docs/tier3-pin.md.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-PIN_FILES="docs/tier1-pin.md docs/tier2-pin.md"
+PIN_FILES="docs/tier1-pin.md docs/tier2-pin.md docs/tier3-pin.md"
 PIN_SHA=78c5b3d1a4b7f5309a4df6eed4487162634c4010
 OLD_PREFIX="github.com/eshu-hq/eshu/go/internal"
 NEW_PREFIX="github.com/eshu-hq/eshu-cli/internal"
@@ -39,7 +44,10 @@ moved_files() {
         cmd/eshu/config.go | cmd/eshu/config_test.go | \
         cmd/eshu/component.go | cmd/eshu/component_test.go | \
         cmd/eshu/mcp.go | cmd/eshu/mcp_test.go | \
-        internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go)
+        cmd/eshu/doctor.go | cmd/eshu/doctor_test.go | \
+        cmd/eshu/workspace.go | cmd/eshu/workspace_test.go | \
+        internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go | \
+        internal/urlredact/query_tier3_test.go)
         continue
         ;;
     esac
@@ -112,7 +120,8 @@ if [ "$WANT_FETCH" = 1 ]; then
 fi
 
 # Offline pin-hash check: destination bytes must match the pin files
-# (docs/tier1-pin.md for Tier-1 rows, docs/tier2-pin.md for Tier-2 rows).
+# (docs/tier1-pin.md for Tier-1 rows, docs/tier2-pin.md for Tier-2 rows,
+# docs/tier3-pin.md for Tier-3 rows).
 while read -r dest core; do
   want=""
   for pin in $PIN_FILES; do

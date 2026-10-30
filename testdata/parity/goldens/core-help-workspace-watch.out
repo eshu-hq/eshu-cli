@@ -1,0 +1,12 @@
+Watch all repositories in a workspace for changes
+
+Usage:
+  eshu workspace watch <path> [flags]
+
+Flags:
+  -h, --help                    help for watch
+      --workspace-root string   Explicit workspace root for the local Eshu service
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization

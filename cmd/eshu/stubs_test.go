@@ -19,8 +19,8 @@ func TestE3StubsPointAtCoreBinary(t *testing.T) {
 		"demo-benchmark", "first-run", "first-run-benchmark",
 		"hosted-setup", "hosted-onboard", "assistant",
 		"competitive-parity", "evidence",
-		"evidence-packet-dogfood", "workspace", "graph", "watch", "w",
-		"admin", "doctor", "install",
+		"evidence-packet-dogfood", "graph", "watch", "w",
+		"admin", "install",
 	}
 	for _, name := range stubRoots {
 		t.Run(name, func(t *testing.T) {
@@ -62,6 +62,31 @@ func TestTier1CommandsRegistered(t *testing.T) {
 			}
 			if cmd == nil {
 				t.Fatalf("Tier-1 command %q not registered", name)
+			}
+		})
+	}
+}
+
+// TestTier3CommandsRegistered pins the Tier-3 population scope: doctor and
+// workspace are real commands in the destination tree, with workspace's
+// retained/watcher and removed children resolving underneath it.
+func TestTier3CommandsRegistered(t *testing.T) {
+	for _, args := range [][]string{
+		{"doctor"},
+		{"workspace"},
+		{"workspace", "status"},
+		{"workspace", "watch"},
+		{"workspace", "plan"},
+		{"workspace", "sync"},
+		{"workspace", "index"},
+	} {
+		t.Run(strings.Join(args, "-"), func(t *testing.T) {
+			cmd, _, err := rootCmd.Find(args)
+			if err != nil {
+				t.Fatalf("find %v: %v", args, err)
+			}
+			if cmd == nil || cmd.Name() != args[len(args)-1] {
+				t.Fatalf("Tier-3 command %v not registered", args)
 			}
 		})
 	}

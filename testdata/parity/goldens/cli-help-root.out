@@ -29,7 +29,7 @@ Available Commands:
   demo                     STUB: demo lifecycle stays in core
   demo-benchmark           STUB: demo scorer stays in core
   docs                     STUB: docs verification stays in core
-  doctor                   STUB: diagnostics reporter stays in core
+  doctor                   Run diagnostics to check system health and configuration
   ecosystem                Ecosystem-wide analysis (migrated to Go)
   evidence                 STUB: portable bundle client stays in core
   evidence-packet-dogfood  STUB: packet benchmark stays in core
@@ -68,7 +68,7 @@ Available Commands:
   w                        STUB: shortcut for watcher lifecycle stays in core
   watch                    STUB: watcher lifecycle stays in core
   watching                 Removed: watcher lifecycle is owned by the Go ingester runtime
-  workspace                STUB: workspace operations stay in core
+  workspace                Multi-repository workspace operations
 
 Flags:
       --database string   Temporarily override database backend

@@ -1,0 +1,20 @@
+Multi-repository workspace operations
+
+Usage:
+  eshu workspace [command]
+
+Available Commands:
+  index       Removed: use eshu index <path> or eshu admin reindex instead
+  plan        Removed: use eshu index <path> or eshu admin reindex instead
+  status      Show workspace indexing status
+  sync        Removed: use eshu index <path> or eshu admin reindex instead
+  watch       Watch all repositories in a workspace for changes
+
+Flags:
+  -h, --help   help for workspace
+
+Global Flags:
+      --database string   Temporarily override database backend
+  -V, --visual            Show results as interactive graph visualization
+
+Use "eshu workspace [command] --help" for more information about a command.

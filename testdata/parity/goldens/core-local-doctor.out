@@ -1,0 +1,12 @@
+Eshu Diagnostics
+----------------------------------------
+  [ok] Config directory exists: __ESHU_HOME__
+  [!!] Config file missing: __ESHU_HOME__/.env
+  [!!] eshu-api not found in PATH
+  [!!] eshu-mcp-server not found in PATH
+  [!!] eshu-bootstrap-index not found in PATH
+  [!!] eshu-ingester not found in PATH
+  [!!] eshu-reducer not found in PATH
+  [ok] API healthy at http://127.0.0.1:18091
+  [!!] Neo4j URI not configured (set NEO4J_URI)
+  [!!] Postgres DSN not configured (set ESHU_POSTGRES_DSN)
