@@ -74,7 +74,7 @@ this table, re-capture Tier-1 parity goldens, and re-run the full review.
 | `internal/cli/change/request.go` | `go/internal/cli/change/request.go` | 42558831fb485280741cfdd5f0d52af46de2af318b01c7ee5430215c53d67aa0 |
 | `internal/cli/config/backend.go` | `go/internal/cli/config/backend.go` | 41e3bf7aec6f7ee4a74420098a0d6b61ed54fed7612301c52df31d0d4a9aa7d9 |
 | `internal/cli/config/doc.go` | `go/internal/cli/config/doc.go` | 49632c472da719d977cd3b3fcec7c8c1fe08997cbd01ef892d4b5db4962b18ce |
-| `internal/cli/config/env.go` | `go/internal/cli/config/env.go` | cf89e376d98050e57ce06504eb7c3f8417afcbb01531fb6a56cef836a33e1eb9 |
+| `internal/cli/config/env.go` | `go/internal/cli/config/env.go` | c8d0b5454889b7b264c18f733567b3feeb5add4b9a210cafedbdde7a80ff2cc6 |
 | `internal/cli/config/validate.go` | `go/internal/cli/config/validate.go` | 585dcf8beedc76a2cec9cdfc30a227623fce0667fb9babfd7de7d2915493ec15 |
 | `internal/cli/entitymap/doc.go` | `go/internal/cli/entitymap/doc.go` | db264953ba5a5bc806b98b21f6a13bf7ca3cf7a4ccf63caf85fd155957e68dc1 |
 | `internal/cli/entitymap/entitymap.go` | `go/internal/cli/entitymap/entitymap.go` | 4f898e789781801a6044b2a54c8579fd1455758915b4a179b587541d4aacaee5 |

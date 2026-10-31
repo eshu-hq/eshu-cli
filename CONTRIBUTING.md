@@ -15,6 +15,7 @@ Push and PR runs pick lanes by changed paths (the `changes` job):
 | `go.mod`, `go.sum`, `.golangci.yml` | `govulncheck` plus the Go rows above |
 | Fixtures or config tests read | `test` only |
 | Shell scripts (`**/*.sh`) | `shell` only |
+| Gate inputs (`scripts/coverage-gate.sh`, `Makefile`) | `race` (the script additionally matches `shell`) |
 | `Dockerfile`, `.dockerignore` | `image` (lands with the file) |
 | `.github/workflows/**` | `workflow-lint` plus `lint`, `test`, `race` |
 | Weekly schedule (Mondays 06:00 UTC) | `govulncheck`, `gosec` |
