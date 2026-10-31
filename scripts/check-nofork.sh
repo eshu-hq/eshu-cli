@@ -66,7 +66,9 @@ moved_files() {
         internal/cli/freshness/freshness_cli_test.go | \
         internal/cli/freshness/freshness_render_cli_test.go | \
         internal/cli/entitymap/entitymap_cli_test.go | \
-        internal/cli/entitymap/entitymap_render_cli_test.go)
+        internal/cli/entitymap/entitymap_render_cli_test.go | \
+        internal/cli/change/change_cli_test.go | \
+        internal/cli/change/change_render_cli_test.go)
         continue
         ;;
     esac
