@@ -32,9 +32,10 @@ const (
 
 // nornicDBBinaryMaxBytes caps any staged NornicDB binary at 512 MiB.
 // Archives enforce it during streaming; the darwin package path enforces it
-// on the expanded Payload binary, since pkgutil expansion has no bound, and
-// refuses before expansion when the artifact itself already meets the cap or
-// the temp volume lacks cap-sized room.
+// on the expanded Payload binary and, since pkgutil expansion itself is
+// unbounded, on the whole expansion tree while pkgutil runs
+// (runBoundedExpansion), and refuses before expansion when the artifact
+// itself already meets the cap or the temp volume lacks cap-sized room.
 const nornicDBBinaryMaxBytes = 512 << 20
 
 type preparedInstallSource struct {
