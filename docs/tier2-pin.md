@@ -38,8 +38,9 @@ test vectors (nothing in the copied set reads `BoundaryCases` /
 Destination-authored tests (coverage ratchet, eshu-hq/eshu-cli#6): new
 `*_cli_test.go` files testing frozen sources are named exclusions in
 `scripts/check-nofork.sh`, never pin rows — `internal/cli/resultshape
-/shape_cli_test.go` is the first, per the ratchet standing ruling. Exclusions
-retire at re-pin if core gains the test.
+/shape_cli_test.go` was the first, `internal/cli/evidredact
+/evidredact_cli_test.go` the second, per the ratchet standing ruling
+(eshu-hq/eshu-cli#6). Exclusions retire at re-pin if core gains the test.
 
 | `dest` | sha256 |
 |---|---|

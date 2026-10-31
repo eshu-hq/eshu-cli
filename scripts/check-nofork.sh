@@ -52,6 +52,7 @@ moved_files() {
         internal/cli/resultshape/shape_cli_test.go | \
         internal/cli/apierr/apierr_cli_test.go | \
         internal/buildinfo/buildinfo_cli_test.go | \
+        internal/cli/evidredact/evidredact_cli_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
         ;;
