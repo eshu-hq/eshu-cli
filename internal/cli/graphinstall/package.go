@@ -6,22 +6,16 @@ package graphinstall
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"runtime"
-	"strings"
 )
 
 // expandPackage shells out to the fixed macOS pkgutil to expand a .pkg
-// install source into a scratch directory. It stays a variable so tests can
-// stub the subprocess without touching the package manager.
+// install source into a scratch directory, under the expansion-time tree
+// bound from package_expand.go. It stays a variable so tests can stub the
+// subprocess without touching the package manager.
 var expandPackage = func(pkgPath, targetDir string) error {
-	cmd := exec.Command("pkgutil", "--expand-full", pkgPath, targetDir) // #nosec G204 -- fixed binary "pkgutil" with arguments only; pkgPath is the explicitly selected package artifact and targetDir is an isolated temp directory
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("expand package %q: %w: %s", pkgPath, err, strings.TrimSpace(string(output)))
-	}
-	return nil
+	return runBoundedExpansion(newExpandCommand(pkgPath, targetDir), pkgPath, targetDir, nornicDBBinaryMaxBytes, expandWatchInterval)
 }
 
 func extractBinaryFromPackage(packagePath string) (string, string, func() error, error) {
