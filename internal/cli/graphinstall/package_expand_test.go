@@ -4,6 +4,7 @@
 package graphinstall
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -83,6 +84,19 @@ func TestExpandHelperProcess(t *testing.T) {
 	case "fail":
 		_, _ = os.Stderr.WriteString("fake pkgutil boom")
 		os.Exit(1)
+	case "exact":
+		// Write exactly ESHU_EXPAND_BYTES bytes for boundary tests.
+		var n int64
+		_, _ = fmt.Sscanf(os.Getenv("ESHU_EXPAND_BYTES"), "%d", &n)
+		f, err := os.OpenFile(filepath.Join(dir, "big"), os.O_CREATE|os.O_WRONLY, 0o600)
+		if err != nil {
+			os.Exit(3)
+		}
+		if _, err := f.Write(make([]byte, n)); err != nil {
+			_ = f.Close()
+			os.Exit(3)
+		}
+		_ = f.Close()
 	}
 	os.Exit(0)
 }
@@ -161,5 +175,49 @@ func TestBoundedExpansionRejectsNonPositiveBound(t *testing.T) {
 	target := filepath.Join(t.TempDir(), "expanded")
 	if err := runBoundedExpansion(nil, "NornicDB.pkg", target, 0, 25*time.Millisecond); err == nil {
 		t.Fatal("runBoundedExpansion(bound=0) = nil, want refusal")
+	}
+}
+
+func TestBoundedExpansionExactBoundary(t *testing.T) {
+	// Meets-or-exceeds semantics: a tree of exactly the bound is refused,
+	// one byte under is allowed.
+	for _, tc := range []struct {
+		name    string
+		bytes   string
+		bound   int64
+		refused bool
+	}{
+		{"exact", "1024", 1024, true},
+		{"one-under", "1023", 1024, false},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Setenv("ESHU_EXPAND_BYTES", tc.bytes)
+			fakeExpandCommand(t, "exact")
+			target := filepath.Join(t.TempDir(), "expanded")
+			if err := os.MkdirAll(target, 0o755); err != nil {
+				t.Fatalf("stage target: %v", err)
+			}
+			cmd := newExpandCommand("NornicDB.pkg", target)
+			err := runBoundedExpansion(cmd, "NornicDB.pkg", target, tc.bound, 25*time.Millisecond)
+			if tc.refused && err == nil {
+				t.Fatalf("tree of exactly %s bytes with bound %d accepted, want refusal", tc.bytes, tc.bound)
+			}
+			if !tc.refused && err != nil {
+				t.Fatalf("tree of %s bytes with bound %d refused: %v", tc.bytes, tc.bound, err)
+			}
+		})
+	}
+}
+
+func TestExpandPackageWiringEnforcesProductionBound(t *testing.T) {
+	// The production expandPackage var must route through the bounded
+	// runner with the 512 MiB production constant, not merely exist next
+	// to it: a fake expansion past the cap must fail naming the constant.
+	t.Setenv("ESHU_EXPAND_BYTES", fmt.Sprint(nornicDBBinaryMaxBytes+1))
+	fakeExpandCommand(t, "exact")
+	target := filepath.Join(t.TempDir(), "expanded")
+	err := expandPackage("NornicDB.pkg", target)
+	if err == nil || !strings.Contains(err.Error(), fmt.Sprint(nornicDBBinaryMaxBytes)) {
+		t.Fatalf("got %v, want refusal naming the %d-byte production bound", err, nornicDBBinaryMaxBytes)
 	}
 }
