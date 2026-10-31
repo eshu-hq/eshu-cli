@@ -437,10 +437,23 @@ func extractBinaryFromPackage(packagePath string) (string, string, func() error,
 		return "", "", nil, err
 	}
 
+	chosen, err := selectPackageBinary(tempDir, expandedDir, packagePath)
+	if err != nil {
+		return "", "", nil, err
+	}
+	return chosen, filepath.Base(chosen), func() error { return os.RemoveAll(tempDir) }, nil
+}
+
+// selectPackageBinary chooses the managed binary from an expanded .pkg tree
+// and enforces the shared extraction cap on it. It removes tempDir on every
+// failure so a refused package leaves no residue. Extracted (rather than
+// tested only through extractBinaryFromPackage) so the select/stat/check
+// tail is pinned on Linux CI, where the darwin gate blocks the full path.
+func selectPackageBinary(tempDir, expandedDir, packagePath string) (string, error) {
 	candidates, err := filepath.Glob(filepath.Join(expandedDir, "*", "Payload", "usr", "local", "bin", "*"))
 	if err != nil {
 		_ = os.RemoveAll(tempDir)
-		return "", "", nil, fmt.Errorf("scan expanded nornicdb package %q: %w", packagePath, err)
+		return "", fmt.Errorf("scan expanded nornicdb package %q: %w", packagePath, err)
 	}
 
 	var chosen string
@@ -456,18 +469,18 @@ func extractBinaryFromPackage(packagePath string) (string, string, func() error,
 	}
 	if chosen == "" {
 		_ = os.RemoveAll(tempDir)
-		return "", "", nil, fmt.Errorf("nornicdb package %q did not contain a usable NornicDB binary", packagePath)
+		return "", fmt.Errorf("nornicdb package %q did not contain a usable NornicDB binary", packagePath)
 	}
 	info, err := os.Stat(chosen)
 	if err != nil {
 		_ = os.RemoveAll(tempDir)
-		return "", "", nil, fmt.Errorf("stat expanded nornicdb binary: %w", err)
+		return "", fmt.Errorf("stat expanded nornicdb binary: %w", err)
 	}
 	if err := checkPackageBinarySize(info, packagePath); err != nil {
 		_ = os.RemoveAll(tempDir)
-		return "", "", nil, err
+		return "", err
 	}
-	return chosen, filepath.Base(chosen), func() error { return os.RemoveAll(tempDir) }, nil
+	return chosen, nil
 }
 
 // checkPackageBinarySize refuses an expanded Payload binary that meets or
