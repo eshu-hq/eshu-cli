@@ -72,6 +72,18 @@ localsupervisor in any populated closure; no fork/vendor/replace.
   report branches the copied tests leave uncovered (healthy-machine happy
   path, degraded-API status, write-error swallow contract), under the
   coverage ratchet (eshu-hq/eshu-cli#6).
+- `internal/cli/graphinstall/graphinstall_cli_test.go`,
+  `internal/cli/graphinstall/graphinstall_source_cli_test.go`,
+  `internal/cli/graphinstall/graphinstall_archive_cli_test.go`: unit proof
+  for the destination-authored install surface the PR #52 tests leave
+  uncovered (pinned-manifest resolution, home fallbacks, install/manifest/
+  copy/atomic error arms, download staging, archive extraction, darwin
+  package path via stubbed expansion, expansion-time bound setup arms),
+  under the coverage ratchet (eshu-hq/eshu-cli#6). Excluded from the freeze
+  by the `internal/cli/graphinstall/*` line in `scripts/check-nofork.sh`
+  (the whole directory is destination-authored, like the urlredact/doctor
+  `_cli_test.go` entries; per-file lines would shadow the glob and trip
+  shellcheck SC2221/SC2222, so the glob stands alone).
 
 ## Tier-3 surface decisions
 
