@@ -172,12 +172,25 @@ func TestReset(t *testing.T) {
 
 func TestConfigureDatabaseBackendTable(t *testing.T) {
 	for _, tc := range []struct {
-		in   string
-		want string
+		in     string
+		want   string
+		values map[string]string
 	}{
-		{"nornicdb", "nornicdb"},
-		{" Nornic ", "nornicdb"},
-		{"NEO4J", "neo4j"},
+		{"nornicdb", "nornicdb", map[string]string{
+			"ESHU_GRAPH_BACKEND":  "nornicdb",
+			"DEFAULT_DATABASE":    "nornic",
+			"ESHU_NEO4J_DATABASE": "nornic",
+		}},
+		{" Nornic ", "nornicdb", map[string]string{
+			"ESHU_GRAPH_BACKEND":  "nornicdb",
+			"DEFAULT_DATABASE":    "nornic",
+			"ESHU_NEO4J_DATABASE": "nornic",
+		}},
+		{"NEO4J", "neo4j", map[string]string{
+			"ESHU_GRAPH_BACKEND":  "neo4j",
+			"DEFAULT_DATABASE":    "neo4j",
+			"ESHU_NEO4J_DATABASE": "neo4j",
+		}},
 	} {
 		isolateHome(t)
 		got, err := ConfigureDatabaseBackend(tc.in)
@@ -185,12 +198,11 @@ func TestConfigureDatabaseBackendTable(t *testing.T) {
 			t.Fatalf("ConfigureDatabaseBackend(%q) = (%q, %v)", tc.in, got, err)
 		}
 		loaded := Load()
-		var backend, legacy, neo4j string
-		backend = loaded["ESHU_GRAPH_BACKEND"]
-		legacy = loaded["DEFAULT_DATABASE"]
-		neo4j = loaded["ESHU_NEO4J_DATABASE"]
-		if backend == "" || legacy == "" || neo4j == "" {
-			t.Fatalf("ConfigureDatabaseBackend(%q) wrote %v, want all three keys", tc.in, loaded)
+		for k, v := range tc.values {
+			if loaded[k] != v {
+				t.Fatalf("ConfigureDatabaseBackend(%q)[%q] = %q, want %q (full map %v)",
+					tc.in, k, loaded[k], v, loaded)
+			}
 		}
 	}
 }
