@@ -317,6 +317,155 @@ func TestPreparePackageIsDarwinOnly(t *testing.T) {
 	}
 }
 
+func TestPackageBinarySizeRefusesOverCap(t *testing.T) {
+	// Fail-closed darwin path: the expanded Payload binary must face the
+	// same 512 MiB cap as archive members (issue #29).
+	dir := t.TempDir()
+	big := filepath.Join(dir, "nornicdb")
+	f, err := os.Create(big)
+	if err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	if err := f.Truncate((512 << 20) + 1); err != nil {
+		t.Fatalf("size binary: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close binary: %v", err)
+	}
+	fi, err := os.Stat(big)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	}
+}
+
+func TestPackageBinarySizeRefusesExactCap(t *testing.T) {
+	// The meets-or-exceeds boundary: an expanded binary of exactly the cap
+	// size is indistinguishable from a truncated longer one, so it must be
+	// refused too. A `>` instead of `>=` in the check would allow it and
+	// fail this test.
+	dir := t.TempDir()
+	exact := filepath.Join(dir, "nornicdb")
+	f, err := os.Create(exact)
+	if err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	if err := f.Truncate(512 << 20); err != nil {
+		t.Fatalf("size binary: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close binary: %v", err)
+	}
+	fi, err := os.Stat(exact)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want exact-cap refusal", err)
+	}
+}
+
+func TestPackageBinarySizeAllowsUnderCap(t *testing.T) {
+	dir := t.TempDir()
+	small := filepath.Join(dir, "nornicdb")
+	if err := os.WriteFile(small, []byte("fake"), 0o755); err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	fi, err := os.Stat(small)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err != nil {
+		t.Fatalf("under-cap binary refused: %v", err)
+	}
+}
+
+// stageExpandedPackage builds a fake pkgutil expansion tree holding one
+// binary of exactly size bytes (sparse: no disk is consumed).
+func stageExpandedPackage(t *testing.T, tempDir, comp, name string, size int64) string {
+	t.Helper()
+	binDir := filepath.Join(tempDir, "expanded", comp, "Payload", "usr", "local", "bin")
+	if err := os.MkdirAll(binDir, 0o755); err != nil {
+		t.Fatalf("stage expanded tree: %v", err)
+	}
+	bin := filepath.Join(binDir, name)
+	f, err := os.Create(bin)
+	if err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	if err := f.Truncate(size); err != nil {
+		t.Fatalf("size binary: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close binary: %v", err)
+	}
+	return bin
+}
+
+func TestSelectPackageBinaryRefusesOverCap(t *testing.T) {
+	// The wiring regression guard: neutralizing the select/stat/check tail
+	// in extractBinaryFromPackage must fail this test. It runs on Linux
+	// with a fake expanded tree (no pkgutil, no darwin gate).
+	tempDir := t.TempDir()
+	expanded := filepath.Join(tempDir, "expanded")
+	stageExpandedPackage(t, tempDir, "comp", "nornicdb", (512<<20)+1)
+	if _, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	}
+	if _, statErr := os.Stat(tempDir); !os.IsNotExist(statErr) {
+		t.Fatalf("temp dir survives a refused package: %v", statErr)
+	}
+}
+
+func TestSelectPackageBinaryRefusesExactCap(t *testing.T) {
+	tempDir := t.TempDir()
+	expanded := filepath.Join(tempDir, "expanded")
+	stageExpandedPackage(t, tempDir, "comp", "nornicdb", 512<<20)
+	if _, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want exact-cap refusal", err)
+	}
+	if _, statErr := os.Stat(tempDir); !os.IsNotExist(statErr) {
+		t.Fatalf("temp dir survives a refused package: %v", statErr)
+	}
+}
+
+func TestSelectPackageBinarySelectsUnderCap(t *testing.T) {
+	tempDir := t.TempDir()
+	expanded := filepath.Join(tempDir, "expanded")
+	want := stageExpandedPackage(t, tempDir, "comp", "nornicdb", 1024)
+	got, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg")
+	if err != nil {
+		t.Fatalf("under-cap binary refused: %v", err)
+	}
+	if got != want {
+		t.Fatalf("got %q, want %q", got, want)
+	}
+	if _, statErr := os.Stat(tempDir); statErr != nil {
+		t.Fatalf("temp dir removed for an accepted package: %v", statErr)
+	}
+}
+
+func TestSelectPackageBinaryWithoutBinaryFails(t *testing.T) {
+	tempDir := t.TempDir()
+	expanded := filepath.Join(tempDir, "expanded")
+	if err := os.MkdirAll(expanded, 0o755); err != nil {
+		t.Fatalf("stage expanded tree: %v", err)
+	}
+	if _, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "did not contain a usable NornicDB binary") {
+		t.Fatalf("got %v, want missing-binary error", err)
+	}
+	if _, statErr := os.Stat(tempDir); !os.IsNotExist(statErr) {
+		t.Fatalf("temp dir survives a refused package: %v", statErr)
+	}
+}
+
 func TestPrepareFileURLStripsScheme(t *testing.T) {
 	dir := t.TempDir()
 	bin := writeFakeBinary(t, dir, "nornicdb-headless", "1.0.0")

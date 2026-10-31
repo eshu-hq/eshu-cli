@@ -13,9 +13,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -32,17 +30,10 @@ const (
 	installTimeoutEnv                         = "ESHU_NORNICDB_INSTALL_TIMEOUT"
 )
 
-// expandPackage shells out to the fixed macOS pkgutil to expand a .pkg
-// install source into a scratch directory. It stays a variable so tests can
-// stub the subprocess without touching the package manager.
-var expandPackage = func(pkgPath, targetDir string) error {
-	cmd := exec.Command("pkgutil", "--expand-full", pkgPath, targetDir) // #nosec G204 -- fixed binary "pkgutil" with arguments only; pkgPath is the explicitly selected package artifact and targetDir is an isolated temp directory
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return fmt.Errorf("expand package %q: %w: %s", pkgPath, err, strings.TrimSpace(string(output)))
-	}
-	return nil
-}
+// nornicDBBinaryMaxBytes caps any staged NornicDB binary at 512 MiB.
+// Archives enforce it during streaming; the darwin package path enforces it
+// on the expanded Payload binary, since pkgutil expansion has no bound.
+const nornicDBBinaryMaxBytes = 512 << 20
 
 type preparedInstallSource struct {
 	SourcePath      string
@@ -386,7 +377,6 @@ func extractBinaryFromArchive(archivePath string) (string, string, func() error,
 			_ = os.RemoveAll(tempDir)
 			return "", "", nil, fmt.Errorf("create extracted nornicdb binary: %w", err)
 		}
-		const nornicDBBinaryMaxBytes = 512 << 20 // 512 MiB -- guards against decompression bombs
 		written, err := io.Copy(targetFile, io.LimitReader(tarReader, nornicDBBinaryMaxBytes))
 		if err != nil {
 			_ = targetFile.Close()
@@ -417,44 +407,6 @@ func extractBinaryFromArchive(archivePath string) (string, string, func() error,
 		return "", "", nil, fmt.Errorf("nornicdb archive %q did not contain a usable NornicDB binary", archivePath)
 	}
 	return extractedPath, extractedName, func() error { return os.RemoveAll(tempDir) }, nil
-}
-
-func extractBinaryFromPackage(packagePath string) (string, string, func() error, error) {
-	if runtime.GOOS != "darwin" {
-		return "", "", nil, fmt.Errorf("nornicdb package sources are only supported on darwin today")
-	}
-	tempDir, err := os.MkdirTemp("", "eshu-nornicdb-package-*")
-	if err != nil {
-		return "", "", nil, fmt.Errorf("create package extraction directory: %w", err)
-	}
-	expandedDir := filepath.Join(tempDir, "expanded")
-	if err := expandPackage(packagePath, expandedDir); err != nil {
-		_ = os.RemoveAll(tempDir)
-		return "", "", nil, err
-	}
-
-	candidates, err := filepath.Glob(filepath.Join(expandedDir, "*", "Payload", "usr", "local", "bin", "*"))
-	if err != nil {
-		_ = os.RemoveAll(tempDir)
-		return "", "", nil, fmt.Errorf("scan expanded nornicdb package %q: %w", packagePath, err)
-	}
-
-	var chosen string
-	for _, candidate := range candidates {
-		name := filepath.Base(candidate)
-		if name == managedBinaryName {
-			chosen = candidate
-			break
-		}
-		if name == "nornicdb" && chosen == "" {
-			chosen = candidate
-		}
-	}
-	if chosen == "" {
-		_ = os.RemoveAll(tempDir)
-		return "", "", nil, fmt.Errorf("nornicdb package %q did not contain a usable NornicDB binary", packagePath)
-	}
-	return chosen, filepath.Base(chosen), func() error { return os.RemoveAll(tempDir) }, nil
 }
 
 func looksLikeArchive(path string) bool {
