@@ -143,12 +143,12 @@ func checkPackageTempFree(freeBytes uint64, tempDir, packagePath string) error {
 var packageGOOS = runtime.GOOS
 
 // checkPackageBinarySize refuses an expanded Payload binary that meets or
-// exceeds the shared extraction cap. pkgutil expansion is unbounded, so
-// without this the darwin path would install an arbitrarily large binary
-// that the archive path would have refused.
+// exceeds the shared extraction cap. Expansion itself runs under the
+// runBoundedExpansion tree bound, so this binary check is defense-in-depth
+// for the darwin path, matching what the archive path refuses.
 func checkPackageBinarySize(info os.FileInfo, packagePath string) error {
 	if info.Size() >= nornicDBBinaryMaxBytes {
-		return fmt.Errorf("nornicdb package %q binary %q meets or exceeds the 512 MiB extraction cap (%d bytes at the cap); refusing unbounded package install", packagePath, info.Name(), info.Size())
+		return fmt.Errorf("nornicdb package %q binary %q meets or exceeds the 512 MiB extraction cap (%d bytes at the cap); refusing over-cap package install", packagePath, info.Name(), info.Size())
 	}
 	return nil
 }

@@ -44,7 +44,7 @@ func runBoundedExpansion(cmd *exec.Cmd, packagePath, targetDir string, maxBytes 
 	if maxBytes <= 0 {
 		return fmt.Errorf("nornicdb package %q expansion bound must be positive, got %d", packagePath, maxBytes)
 	}
-	if err := os.MkdirAll(targetDir, 0o755); err != nil {
+	if err := os.MkdirAll(targetDir, 0o750); err != nil {
 		return fmt.Errorf("create package expansion directory: %w", err)
 	}
 	var output bytes.Buffer
