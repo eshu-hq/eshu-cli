@@ -1,9 +1,13 @@
 # First versioned satellite release (Refs eshu-hq/eshu#9738).
 #
 # Tag-triggered only: pushing `vX.Y.Z` builds the release binaries, records
-# the vulnerability scan, and publishes the GitHub Release with SLSA build
-# provenance plus an SPDX SBOM attestation. Branch pushes never publish.
-# Part of eshu-hq/eshu#6707, Refs eshu-hq/eshu#8874.
+# the vulnerability scan, and publishes the GitHub Release with an SLSA
+# build-provenance attestation covering the binaries, SHA256SUMS.txt, and the
+# SPDX SBOM file. Branch pushes never publish.
+# Accepted tag shape: `vX.Y.Z` with an optional `-prerelease` suffix (for
+# example `v0.1.0` or `v0.1.1-rc.1`); any other `v*` ref fails the tag-shape
+# gate before anything builds. Part of eshu-hq/eshu#6707, Refs
+# eshu-hq/eshu#8874.
 #
 # Fork safety mirrors ci.yml: contents: read everywhere except the release
 # job, no secrets, actions pinned by SHA (tag kept as an inline comment),
@@ -27,7 +31,7 @@ name: release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]*'
   workflow_dispatch:
 
 permissions:
@@ -38,7 +42,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  GO_VERSION: "1.27.2"
+  GO_VERSION: "1.26.10"
   GOVULNCHECK_VERSION: v1.9.0
 
 jobs:
@@ -61,6 +65,13 @@ jobs:
             goarch: arm64
             artifact_name: eshu-macos-arm64
     steps:
+      - name: Validate release tag shape
+        if: github.ref_type == 'tag'
+        run: |
+          if ! [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Refusing to release from tag '${GITHUB_REF_NAME}': want vX.Y.Z with an optional -prerelease suffix" >&2
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -109,6 +120,7 @@ jobs:
           cache: false
       - name: govulncheck scan (recorded on the release)
         run: |
+          set -o pipefail
           go install golang.org/x/vuln/cmd/govulncheck@${{ env.GOVULNCHECK_VERSION }}
           "$(go env GOPATH)/bin/govulncheck" ./... | tee govulncheck.txt
       - name: Upload vulnerability report
@@ -128,6 +140,13 @@ jobs:
       id-token: write
       attestations: write
     steps:
+      - name: Validate release tag shape
+        if: github.ref_type == 'tag'
+        run: |
+          if ! [[ "${GITHUB_REF_NAME}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Refusing to release from tag '${GITHUB_REF_NAME}': want vX.Y.Z with an optional -prerelease suffix" >&2
+            exit 1
+          fi
       - name: Checkout repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:

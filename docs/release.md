@@ -23,10 +23,13 @@ git push origin v0.1.0
 The tag push starts `.github/workflows/release.yml`, which builds
 `eshu-linux-x86_64` (ubuntu-24.04) and `eshu-macos-arm64` (macos-latest)
 with `buildinfo.Version` stamped to the tag, records `govulncheck ./...`,
-and publishes the GitHub Release with SLSA build provenance plus an SPDX
-SBOM attestation. Asset names match the core `eshu` release assets on
-purpose: the satellite binary is a drop-in upgrade for the core-shipped
-binary. Branch pushes never publish.
+and publishes the GitHub Release with an SLSA build-provenance attestation
+covering the binaries, `SHA256SUMS.txt`, and the SPDX SBOM file. Asset
+names match the core `eshu` release assets on purpose: the satellite binary
+is a drop-in upgrade for the core-shipped binary. Branch pushes never
+publish. Accepted tag shape is `vX.Y.Z` with an optional `-prerelease`
+suffix; any other `v*` ref fails the tag-shape gate before anything
+builds.
 
 ## Verifying a published release
 
@@ -53,8 +56,10 @@ Upgrade from the core-shipped binary: put the satellite earlier in `PATH`
 (or replace the core binary in place; both are a single `eshu` binary with
 the same Tier-1 surface — see the parity goldens under
 `testdata/parity/goldens/`). Rollback is the reverse: reinstall the prior
-core binary; the CLI keeps no live state (`eshu-hq/eshu#9671` records this
-disposition).
+core binary. That swap changes only which `eshu` binary runs: it does not
+remove the managed `nornicdb` binary or its install manifest, and it does
+not touch `~/.eshu/.env` (0600) — remove or restore those explicitly if the
+rollback must undo them (`eshu-hq/eshu#9671` records this disposition).
 
 ## Evidence
 
