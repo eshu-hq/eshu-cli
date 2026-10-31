@@ -58,6 +58,8 @@ moved_files() {
         internal/cli/component/component_cli_test.go | \
         internal/cli/trace/trace_cli_test.go | \
         internal/cli/opdigest/opdigest_cli_test.go | \
+        internal/cli/mcpsetup/mcpsetup_cli_test.go | \
+        internal/cli/mcpsetup/mcpsetup_verify_cli_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
         ;;
