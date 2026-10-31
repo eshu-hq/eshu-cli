@@ -250,7 +250,7 @@ jobs:
           fetch-depth: 0
       - name: Build image and smoke-test the binary
         run: |
-          docker build -t eshu-cli:ci .
+          docker build --build-arg GO_VERSION="${{ env.GO_VERSION }}" -t eshu-cli:ci .
           docker run --rm eshu-cli:ci --help
           docker run --rm eshu-cli:ci version
 
