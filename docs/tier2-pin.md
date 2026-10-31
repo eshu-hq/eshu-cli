@@ -42,8 +42,9 @@ Destination-authored tests (coverage ratchet, eshu-hq/eshu-cli#6): new
 `internal/cli/evidredact/evidredact_cli_test.go`,
 `internal/cli/playbooks/playbooks_cli_test.go`,
 `internal/cli/reposelector/reposelector_cli_test.go`,
-`internal/cli/component/component_cli_test.go`, and
-`internal/cli/trace/trace_cli_test.go`, per the ratchet standing
+`internal/cli/component/component_cli_test.go`,
+`internal/cli/trace/trace_cli_test.go`, and
+`internal/cli/opdigest/opdigest_cli_test.go`, per the ratchet standing
 ruling (eshu-hq/eshu-cli#6); Tier-1 names its own in `docs/tier1-pin.md`.
 Exclusions retire at re-pin if core gains the test.
 

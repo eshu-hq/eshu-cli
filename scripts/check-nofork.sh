@@ -57,6 +57,7 @@ moved_files() {
         internal/cli/reposelector/reposelector_cli_test.go | \
         internal/cli/component/component_cli_test.go | \
         internal/cli/trace/trace_cli_test.go | \
+        internal/cli/opdigest/opdigest_cli_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
         ;;
