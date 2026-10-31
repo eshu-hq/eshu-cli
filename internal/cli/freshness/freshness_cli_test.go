@@ -300,6 +300,3 @@ func TestBoolValueWrongType(t *testing.T) {
 		t.Error("boolValue(nil parent) = true, want false")
 	}
 }
-
-// TestEveryWriteFailurePropagates steps a failing write through each position
-// of every summary's write sequence and requires the render to report it.
