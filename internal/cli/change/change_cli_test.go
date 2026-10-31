@@ -240,7 +240,7 @@ func TestKinds(t *testing.T) {
 			t.Errorf("Kinds()[%d] = %q, want %q", i, got[i], want[i])
 		}
 	}
-	var f Failure = Failure{Kind: KindEnvelope, Code: "stale", Message: "scope is stale"}
+	f := Failure{Kind: KindEnvelope, Code: "stale", Message: "scope is stale"}
 	if f.Error() != "scope is stale" {
 		t.Errorf("Failure.Error() = %q, want the message", f.Error())
 	}
