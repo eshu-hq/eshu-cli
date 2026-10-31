@@ -1,1 +1,1 @@
-no embedded headless NornicDB release asset for Eshu VERSION on linux/ARCH; Eshu currently tracks the latest NornicDB main branch, so build NornicDB from main and run eshu install nornicdb --from <path-to-nornicdb-headless>
+no embedded headless NornicDB release asset for Eshu VERSION on OS/ARCH; Eshu currently tracks the latest NornicDB main branch, so build NornicDB from main and run eshu install nornicdb --from <path-to-nornicdb-headless>

@@ -232,6 +232,69 @@ func TestPrepareArchiveExtractsAllowlistedBinary(t *testing.T) {
 	}
 }
 
+func TestPrepareArchiveRefusesOverCapMember(t *testing.T) {
+	// Fail-closed install: only the verified artifact bytes may become
+	// the managed binary. A member at or over the extraction cap must be
+	// refused, never installed as a truncated prefix.
+	dir := t.TempDir()
+	archive := writeSizedArchive(t, dir, (512<<20)+1)
+	if _, err := prepareInstallSource(t.Context(), archive, "", fakeReader("3.0.0")); err == nil ||
+		!strings.Contains(err.Error(), "exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	}
+}
+
+func TestPrepareArchiveRefusesExactCapMember(t *testing.T) {
+	// The meets-or-exceeds boundary: a member of exactly the cap size is
+	// indistinguishable from a truncated longer member (LimitReader
+	// reports no error for either), so it must be refused too. A `>`
+	// instead of `>=` in the check would install it and fail this test.
+	dir := t.TempDir()
+	archive := writeSizedArchive(t, dir, 512<<20)
+	if _, err := prepareInstallSource(t.Context(), archive, "", fakeReader("3.0.0")); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want exact-cap refusal", err)
+	}
+}
+
+// writeSizedArchive stages a managed-binary member of exactly size bytes,
+// streamed in chunks so no giant buffer is held.
+func writeSizedArchive(t *testing.T, dir string, size int64) string {
+	t.Helper()
+	overCap := size
+	archivePath := filepath.Join(dir, "nornicdb-headless.tar.gz")
+	f, err := os.Create(archivePath)
+	if err != nil {
+		t.Fatalf("create archive: %v", err)
+	}
+	gz := gzip.NewWriter(f)
+	tw := tar.NewWriter(gz)
+	if err := tw.WriteHeader(&tar.Header{Name: "nornicdb-headless", Mode: 0o755, Size: overCap, Typeflag: tar.TypeReg}); err != nil {
+		t.Fatalf("write header: %v", err)
+	}
+	chunk := make([]byte, 1<<20)
+	for written := int64(0); written < overCap; {
+		n := int64(len(chunk))
+		if written+n > overCap {
+			n = overCap - written
+		}
+		if _, err := tw.Write(chunk[:n]); err != nil {
+			t.Fatalf("write body: %v", err)
+		}
+		written += n
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatalf("close tar: %v", err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatalf("close gzip: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close file: %v", err)
+	}
+	return archivePath
+}
+
 func TestPrepareArchiveWithoutBinaryFails(t *testing.T) {
 	dir := t.TempDir()
 	archive := writeTestArchive(t, dir, map[string]string{"README.md": "docs"})

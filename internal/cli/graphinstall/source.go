@@ -387,10 +387,20 @@ func extractBinaryFromArchive(archivePath string) (string, string, func() error,
 			return "", "", nil, fmt.Errorf("create extracted nornicdb binary: %w", err)
 		}
 		const nornicDBBinaryMaxBytes = 512 << 20 // 512 MiB -- guards against decompression bombs
-		if _, err := io.Copy(targetFile, io.LimitReader(tarReader, nornicDBBinaryMaxBytes)); err != nil {
+		written, err := io.Copy(targetFile, io.LimitReader(tarReader, nornicDBBinaryMaxBytes))
+		if err != nil {
 			_ = targetFile.Close()
 			_ = os.RemoveAll(tempDir)
 			return "", "", nil, fmt.Errorf("extract nornicdb binary from archive: %w", err)
+		}
+		if written >= nornicDBBinaryMaxBytes {
+			// A member at exactly the cap is indistinguishable from a
+			// truncated longer member (LimitReader reports no error for
+			// either), so meets-or-exceeds refuses: only the verified
+			// artifact bytes may become the managed binary.
+			_ = targetFile.Close()
+			_ = os.RemoveAll(tempDir)
+			return "", "", nil, fmt.Errorf("nornicdb archive member %q meets or exceeds the 512 MiB extraction cap (stopped after %d bytes at the cap); refusing truncated install", header.Name, written)
 		}
 		if err := targetFile.Close(); err != nil {
 			_ = os.RemoveAll(tempDir)
