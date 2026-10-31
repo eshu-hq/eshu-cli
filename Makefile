@@ -3,10 +3,16 @@
 # `make ci` runs the same commands as the `lint`, `test`, and `race`
 # lanes in .github/workflows/ci.yml. Go lanes skip with success while
 # the repo holds no go.mod, so a docs-only checkout stays green.
-# Part of eshu-hq/eshu-cli#1.
+# The race lane additionally writes a coverprofile, posts per-package
+# totals, and enforces COVERAGE_FLOOR via scripts/coverage-gate.sh,
+# the same script CI runs. Part of eshu-hq/eshu-cli#1 (#6 gates race).
 
 GO_FILES := $(shell git ls-files '*.go' 2>/dev/null)
 HAS_GO_MOD := $(shell test -f go.mod && echo yes)
+
+# First measured baseline, mirrors COVERAGE_FLOOR in ci.yml (#6).
+COVERAGE_FLOOR ?= 41.7
+COVERAGE_PROFILE ?= coverage-race.out
 
 .PHONY: ci lint test race filecap
 
@@ -38,7 +44,8 @@ race:
 ifndef HAS_GO_MOD
 	@echo "race: no go.mod, race skips until Go code lands."
 else
-	go test ./... -race -count=1
+	go test ./... -race -count=1 -covermode=atomic -coverprofile=$(COVERAGE_PROFILE)
+	bash scripts/coverage-gate.sh $(COVERAGE_PROFILE) $(COVERAGE_FLOOR)
 endif
 
 # 500-line cap on .go files (plain wc, no plugin). Mirrors the lint

@@ -1,0 +1,3 @@
+# Local race-coverage profiles written by `make race` / `make ci`.
+coverage-race.out
+coverage-func.txt
