@@ -386,7 +386,7 @@ canon_install() {
   local esc
   esc="$(printf '%s' "$home" | sed 's/[][\\.*^$/]/\\&/g')"
   sed -e "s|$esc|__ESHU_HOME__|g" -e 's/"installed_at": "[^"]*"/"installed_at": "INSTALLED_AT"/' \
-    -e 's/Eshu \(dev\|v[0-9][^ ]*\|[0-9][0-9A-Za-z._-]*\)/Eshu VERSION/g' -e 's#on \([a-z0-9_][a-z0-9_]*\)/\([a-z0-9_][a-z0-9_]*\)#on OS/ARCH#g'
+    -e 's/Eshu \(dev\|v[0-9][^ ]*\|[0-9][0-9A-Za-z._-]*\.[0-9A-Za-z._-]*\)/Eshu VERSION/g' -e 's#on \(linux\|darwin\|windows\|freebsd\|openbsd\|netbsd\)/\([a-z0-9_][a-z0-9_]*\)#on OS/ARCH#g'
 }
 
 # Tier-3 install cases run against a staged fake NornicDB binary under the

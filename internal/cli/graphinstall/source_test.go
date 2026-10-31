@@ -237,18 +237,31 @@ func TestPrepareArchiveRefusesOverCapMember(t *testing.T) {
 	// the managed binary. A member at or over the extraction cap must be
 	// refused, never installed as a truncated prefix.
 	dir := t.TempDir()
-	archive := writeOverCapArchive(t, dir)
+	archive := writeSizedArchive(t, dir, (512<<20)+1)
 	if _, err := prepareInstallSource(t.Context(), archive, "", fakeReader("3.0.0")); err == nil ||
 		!strings.Contains(err.Error(), "exceeds") {
 		t.Fatalf("got %v, want over-cap refusal", err)
 	}
 }
 
-// writeOverCapArchive stages a managed-binary member one byte over the
-// 512 MiB extraction cap, streamed in chunks so no giant buffer is held.
-func writeOverCapArchive(t *testing.T, dir string) string {
+func TestPrepareArchiveRefusesExactCapMember(t *testing.T) {
+	// The meets-or-exceeds boundary: a member of exactly the cap size is
+	// indistinguishable from a truncated longer member (LimitReader
+	// reports no error for either), so it must be refused too. A `>`
+	// instead of `>=` in the check would install it and fail this test.
+	dir := t.TempDir()
+	archive := writeSizedArchive(t, dir, 512<<20)
+	if _, err := prepareInstallSource(t.Context(), archive, "", fakeReader("3.0.0")); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want exact-cap refusal", err)
+	}
+}
+
+// writeSizedArchive stages a managed-binary member of exactly size bytes,
+// streamed in chunks so no giant buffer is held.
+func writeSizedArchive(t *testing.T, dir string, size int64) string {
 	t.Helper()
-	const overCap = (512 << 20) + 1
+	overCap := size
 	archivePath := filepath.Join(dir, "nornicdb-headless.tar.gz")
 	f, err := os.Create(archivePath)
 	if err != nil {

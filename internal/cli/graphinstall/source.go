@@ -400,7 +400,7 @@ func extractBinaryFromArchive(archivePath string) (string, string, func() error,
 			// artifact bytes may become the managed binary.
 			_ = targetFile.Close()
 			_ = os.RemoveAll(tempDir)
-			return "", "", nil, fmt.Errorf("nornicdb archive member %q meets or exceeds the 512 MiB extraction cap (%d bytes); refusing truncated install", header.Name, written)
+			return "", "", nil, fmt.Errorf("nornicdb archive member %q meets or exceeds the 512 MiB extraction cap (stopped after %d bytes at the cap); refusing truncated install", header.Name, written)
 		}
 		if err := targetFile.Close(); err != nil {
 			_ = os.RemoveAll(tempDir)
