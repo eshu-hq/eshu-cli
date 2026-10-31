@@ -57,6 +57,10 @@ cap), and
 `internal/cli/entitymap/entitymap_cli_test.go` with
 `internal/cli/entitymap/entitymap_render_cli_test.go`
 (the entitymap increment ships two files to stay under the 500-line file
+cap), and
+`internal/cli/change/change_cli_test.go` with
+`internal/cli/change/change_render_cli_test.go`
+(the change increment ships two files to stay under the 500-line file
 cap), per the ratchet standing
 ruling (eshu-hq/eshu-cli#6); Tier-1 names its own in `docs/tier1-pin.md`.
 Exclusions retire at re-pin if core gains the test.
