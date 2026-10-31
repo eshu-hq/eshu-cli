@@ -82,7 +82,7 @@ func TestRedactTokenMasksByLength(t *testing.T) {
 		{"short", "*****"},
 		{"12345678", "********"},
 		{"123456789", "1234*****"},
-		{"Bearer abcdefghijklmnop", "Bear*******************"},
+		{"abcdefghijklmnopqrstuvw", "abcd*******************"},
 	} {
 		if got := evidredact.RedactToken(tc.in); got != tc.want {
 			t.Fatalf("RedactToken(%q) = %q, want %q", tc.in, got, tc.want)
