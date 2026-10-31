@@ -139,18 +139,14 @@ func Reset() error {
 // entry sorted by line so the file's byte content is stable across runs and
 // diffable. The file is written 0600 because it holds API keys.
 func write(config map[string]string) error {
-	// Sort the keys first: ranging over the map visits keys in random
-	// order, so an order-dependent branch here would cover different
-	// statements on different runs and flake statement-coverage totals.
-	keys := make([]string, 0, len(config))
-	for k := range config {
-		keys = append(keys, k)
+	var lines []string
+	for k, v := range config {
+		lines = append(lines, k+"="+v)
 	}
-	sort.Strings(keys)
-	lines := make([]string, 0, len(config))
-	for _, k := range keys {
-		lines = append(lines, k+"="+config[k])
-	}
+	// Sort for stable output. sort.Strings is deterministic, unlike the
+	// map iteration above, so the same statements cover on every run.
+	// (An order-dependent branch here flaked statement-coverage totals.)
+	sort.Strings(lines)
 	// Unwrapped on purpose, same reason as SetValue's os.MkdirAll: the
 	// *PathError already names the .env path the CLI failed to write.
 	return os.WriteFile(EnvFilePath(), []byte(strings.Join(lines, "\n")+"\n"), 0o600) //nolint:wrapcheck // os.WriteFile's *PathError already names the .env path; the CLI prints it verbatim.
