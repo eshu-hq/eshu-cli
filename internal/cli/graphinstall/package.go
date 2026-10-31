@@ -25,7 +25,7 @@ var expandPackage = func(pkgPath, targetDir string) error {
 }
 
 func extractBinaryFromPackage(packagePath string) (string, string, func() error, error) {
-	if runtime.GOOS != "darwin" {
+	if packageGOOS != "darwin" {
 		return "", "", nil, fmt.Errorf("nornicdb package sources are only supported on darwin today")
 	}
 	// Refuse before pkgutil expansion can fill temp disk: a compressed
@@ -142,6 +142,11 @@ func checkPackageTempFree(freeBytes uint64, tempDir, packagePath string) error {
 	}
 	return nil
 }
+
+// packageGOOS is runtime.GOOS in production. Tests stub it to "darwin" to
+// exercise the darwin install path on Linux (expandPackage is already a
+// stub-able var for the same reason).
+var packageGOOS = runtime.GOOS
 
 // checkPackageBinarySize refuses an expanded Payload binary that meets or
 // exceeds the shared extraction cap. pkgutil expansion is unbounded, so
