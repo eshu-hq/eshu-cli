@@ -373,16 +373,20 @@ capture_doctor() {
   EXTRA_ENV=()
 }
 
-# canon_install rewrites the isolated ESHU_HOME and the wall-clock install
-# stamp out of install goldens. The managed binary, manifest, and source
-# paths all live under the per-run ESHU_HOME (fresh mktemp), and
-# installed_at stamps the run time, so both placeholders keep the
-# core-vs-dest comparison on the contract shape instead of the machine.
+# canon_install rewrites the isolated ESHU_HOME, the wall-clock install
+# stamp, the builder version stamp, and the platform arch out of install
+# goldens. The managed binary, manifest, and source paths all live under the
+# per-run ESHU_HOME (fresh mktemp), installed_at stamps the run time, the
+# Eshu version stamp differs between dev checkouts and CI builds, and the
+# arch differs between arm64 dev machines and amd64 CI runners, so all four
+# placeholders keep the core-vs-dest comparison on the contract shape
+# instead of the machine.
 canon_install() {
   local home="$1"
   local esc
   esc="$(printf '%s' "$home" | sed 's/[][\\.*^$/]/\\&/g')"
-  sed -e "s|$esc|__ESHU_HOME__|g" -e 's/"installed_at": "[^"]*"/"installed_at": "INSTALLED_AT"/'
+  sed -e "s|$esc|__ESHU_HOME__|g" -e 's/"installed_at": "[^"]*"/"installed_at": "INSTALLED_AT"/' \
+    -e 's/Eshu \(dev\|v[0-9][^ ]*\)/Eshu VERSION/g' -e 's#linux/\(arm64\|amd64\)#linux/ARCH#g'
 }
 
 # Tier-3 install cases run against a staged fake NornicDB binary under the
