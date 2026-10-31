@@ -11,7 +11,7 @@ GO_FILES := $(shell git ls-files '*.go' 2>/dev/null)
 HAS_GO_MOD := $(shell test -f go.mod && echo yes)
 
 # First measured baseline, mirrors COVERAGE_FLOOR in ci.yml (#6).
-COVERAGE_FLOOR ?= 42.4
+COVERAGE_FLOOR ?= 42.5
 COVERAGE_PROFILE ?= coverage-race.out
 
 .PHONY: ci lint test race filecap

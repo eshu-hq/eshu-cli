@@ -37,8 +37,12 @@ Destination-authored files outside the freeze: `cmd/eshu/doc.go`,
 `cmd/eshu/client_bearer_test.go` (httptest provenance for the
 Proof-table bearer-carriage figure, eshu-hq/eshu-cli#23),
 `internal/cli/change/redaction_helper_test.go` (canary scaffolding mirroring
-core's `render_test.go` helper), and
-`internal/cli/config/credential_roundtrip_test.go` (decision-7 proof).
+core's `render_test.go` helper),
+`internal/cli/config/credential_roundtrip_test.go` (decision-7 proof), and
+coverage-ratchet `*_cli_test.go` files (destination-authored tests for frozen
+sources, named exclusions in `scripts/check-nofork.sh`, never pin rows:
+`internal/cli/resultshape/shape_cli_test.go`,
+`internal/cli/apierr/apierr_cli_test.go`; eshu-hq/eshu-cli#6).
 
 Refresh procedure: re-copy from the new pin, repoint imports, regenerate
 this table, re-capture Tier-1 parity goldens, and re-run the full review.

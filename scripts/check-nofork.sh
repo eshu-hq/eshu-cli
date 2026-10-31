@@ -50,6 +50,7 @@ moved_files() {
         internal/cli/graphinstall/* | \
         internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go | \
         internal/cli/resultshape/shape_cli_test.go | \
+        internal/cli/apierr/apierr_cli_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
         ;;
