@@ -15,7 +15,7 @@ summary="${3:-}"
 # gate would pass vacuously (eshu-hq/eshu-cli#35 review P1).
 case "$floor" in
 '' | '.' | *[!0-9.]* | *.*.* | -*)
-  echo "coverage-gate: bad floor '$floor' (want a number like 41.7)" >&2
+  echo "coverage-gate: bad floor '$floor' (want a number like 41.9)" >&2
   exit 1
   ;;
 esac
