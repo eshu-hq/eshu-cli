@@ -317,6 +317,73 @@ func TestPreparePackageIsDarwinOnly(t *testing.T) {
 	}
 }
 
+func TestPackageBinarySizeRefusesOverCap(t *testing.T) {
+	// Fail-closed darwin path: the expanded Payload binary must face the
+	// same 512 MiB cap as archive members (issue #29).
+	dir := t.TempDir()
+	big := filepath.Join(dir, "nornicdb")
+	f, err := os.Create(big)
+	if err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	if err := f.Truncate((512 << 20) + 1); err != nil {
+		t.Fatalf("size binary: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close binary: %v", err)
+	}
+	fi, err := os.Stat(big)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	}
+}
+
+func TestPackageBinarySizeRefusesExactCap(t *testing.T) {
+	// The meets-or-exceeds boundary: an expanded binary of exactly the cap
+	// size is indistinguishable from a truncated longer one, so it must be
+	// refused too. A `>` instead of `>=` in the check would allow it and
+	// fail this test.
+	dir := t.TempDir()
+	exact := filepath.Join(dir, "nornicdb")
+	f, err := os.Create(exact)
+	if err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	if err := f.Truncate(512 << 20); err != nil {
+		t.Fatalf("size binary: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close binary: %v", err)
+	}
+	fi, err := os.Stat(exact)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want exact-cap refusal", err)
+	}
+}
+
+func TestPackageBinarySizeAllowsUnderCap(t *testing.T) {
+	dir := t.TempDir()
+	small := filepath.Join(dir, "nornicdb")
+	if err := os.WriteFile(small, []byte("fake"), 0o755); err != nil {
+		t.Fatalf("stage binary: %v", err)
+	}
+	fi, err := os.Stat(small)
+	if err != nil {
+		t.Fatalf("stat binary: %v", err)
+	}
+	if err := checkPackageBinarySize(fi, "NornicDB.pkg"); err != nil {
+		t.Fatalf("under-cap binary refused: %v", err)
+	}
+}
+
 func TestPrepareFileURLStripsScheme(t *testing.T) {
 	dir := t.TempDir()
 	bin := writeFakeBinary(t, dir, "nornicdb-headless", "1.0.0")

@@ -32,6 +32,11 @@ const (
 	installTimeoutEnv                         = "ESHU_NORNICDB_INSTALL_TIMEOUT"
 )
 
+// nornicDBBinaryMaxBytes caps any staged NornicDB binary at 512 MiB.
+// Archives enforce it during streaming; the darwin package path enforces it
+// on the expanded Payload binary, since pkgutil expansion has no bound.
+const nornicDBBinaryMaxBytes = 512 << 20
+
 // expandPackage shells out to the fixed macOS pkgutil to expand a .pkg
 // install source into a scratch directory. It stays a variable so tests can
 // stub the subprocess without touching the package manager.
@@ -386,7 +391,6 @@ func extractBinaryFromArchive(archivePath string) (string, string, func() error,
 			_ = os.RemoveAll(tempDir)
 			return "", "", nil, fmt.Errorf("create extracted nornicdb binary: %w", err)
 		}
-		const nornicDBBinaryMaxBytes = 512 << 20 // 512 MiB -- guards against decompression bombs
 		written, err := io.Copy(targetFile, io.LimitReader(tarReader, nornicDBBinaryMaxBytes))
 		if err != nil {
 			_ = targetFile.Close()
@@ -454,7 +458,27 @@ func extractBinaryFromPackage(packagePath string) (string, string, func() error,
 		_ = os.RemoveAll(tempDir)
 		return "", "", nil, fmt.Errorf("nornicdb package %q did not contain a usable NornicDB binary", packagePath)
 	}
+	info, err := os.Stat(chosen)
+	if err != nil {
+		_ = os.RemoveAll(tempDir)
+		return "", "", nil, fmt.Errorf("stat expanded nornicdb binary: %w", err)
+	}
+	if err := checkPackageBinarySize(info, packagePath); err != nil {
+		_ = os.RemoveAll(tempDir)
+		return "", "", nil, err
+	}
 	return chosen, filepath.Base(chosen), func() error { return os.RemoveAll(tempDir) }, nil
+}
+
+// checkPackageBinarySize refuses an expanded Payload binary that meets or
+// exceeds the shared extraction cap. pkgutil expansion is unbounded, so
+// without this the darwin path would install an arbitrarily large binary
+// that the archive path would have refused.
+func checkPackageBinarySize(info os.FileInfo, packagePath string) error {
+	if info.Size() >= nornicDBBinaryMaxBytes {
+		return fmt.Errorf("nornicdb package %q binary %q meets or exceeds the 512 MiB extraction cap (%d bytes at the cap); refusing unbounded package install", packagePath, info.Name(), info.Size())
+	}
+	return nil
 }
 
 func looksLikeArchive(path string) bool {
