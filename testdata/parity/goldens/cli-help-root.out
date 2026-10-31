@@ -45,7 +45,7 @@ Available Commands:
   i                        Shortcut for 'eshu index'
   index                    Index a local path into the code graph
   index-status             Show the latest checkpointed indexing status
-  install                  STUB: backend tooling install stays in core
+  install                  Install local graph backend tooling
   investigation            STUB: evidence-packet export stays in core
   list                     List all indexed repositories
   ls                       Shortcut for 'eshu list'

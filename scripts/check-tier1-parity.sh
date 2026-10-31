@@ -46,6 +46,7 @@ HELP_CASES=(
   "config-reset config reset" "config-db config db" "config-validate config validate"
   "service-report service-report"
   "answer-quality-scorecard answer-quality-scorecard"
+  "install install" "install-nornicdb install nornicdb"
   "component component" "component-inventory component inventory"
   "component-diagnostics component diagnostics" "component-inspect component inspect"
   "component-verify component verify" "component-install component install"
@@ -133,15 +134,17 @@ LOCAL_CASES=(
 # E3 stub cases (exit 1): top-level names. Tier-2 shrinks the set: report,
 # service-report, mcp, m, config, component, and answer-quality-scorecard are
 # thin now. Tier-3 removes doctor (moved, closure 3) and workspace (thin
-# status plus removed/retained children). investigation stays: its packet
-# build is truth assembly in the query closure with no build endpoint, so
-# copying it would fork truth.
+# status plus removed/retained children), then install (destination-authored
+# to the pinned install contract: the core package closes over the query
+# root, so no frozen copy can pass the census). investigation stays: its
+# packet build is truth assembly in the query closure with no build endpoint,
+# so copying it would fork truth.
 STUB_CASES=(
   investigation scan vuln-scan
   docs demo demo-benchmark first-run first-run-benchmark
   hosted-setup hosted-onboard assistant
   competitive-parity evidence evidence-packet-dogfood graph
-  watch w admin install
+  watch w admin
 )
 
 isolate_home() {
@@ -201,6 +204,10 @@ run_one() {
     case "$suffix" in
       *report-capture*) canon_capture "$out" ;;
       *local-doctor*) canon_doctor "$ESHU_HOME" <"$out" >"$out.canon" && mv "$out.canon" "$out" ;;
+      *local-install-*)
+        canon_install "$ESHU_HOME" <"$out" >"$out.canon" && mv "$out.canon" "$out"
+        canon_install "$ESHU_HOME" <"$errf" >"$errf.canon" && mv "$errf.canon" "$errf"
+        ;;
     esac
     if [ "$(cat "$exitf")" != "$want" ]; then
       echo "NOTE: $name exited $(cat "$exitf"), want $want"
@@ -217,6 +224,10 @@ run_one() {
   case "$suffix" in
     *report-capture*) canon_capture "$tmp_o" ;;
     *local-doctor*) canon_doctor "$ESHU_HOME" <"$tmp_o" >"$tmp_o.canon" && mv "$tmp_o.canon" "$tmp_o" ;;
+    *local-install-*)
+      canon_install "$ESHU_HOME" <"$tmp_o" >"$tmp_o.canon" && mv "$tmp_o.canon" "$tmp_o"
+      canon_install "$ESHU_HOME" <"$tmp_e" >"$tmp_e.canon" && mv "$tmp_e.canon" "$tmp_e"
+      ;;
   esac
   if [ "$got" != "$want" ]; then
     echo "FAIL(exit): $name got $got want $want"
@@ -362,6 +373,45 @@ capture_doctor() {
   EXTRA_ENV=()
 }
 
+# canon_install rewrites the isolated ESHU_HOME, the wall-clock install
+# stamp, the builder version stamp, and the platform arch out of install
+# goldens. The managed binary, manifest, and source paths all live under the
+# per-run ESHU_HOME (fresh mktemp), installed_at stamps the run time, the
+# Eshu version stamp differs between dev checkouts and CI builds, and the
+# arch differs between arm64 dev machines and amd64 CI runners, so all four
+# placeholders keep the core-vs-dest comparison on the contract shape
+# instead of the machine.
+canon_install() {
+  local home="$1"
+  local esc
+  esc="$(printf '%s' "$home" | sed 's/[][\\.*^$/]/\\&/g')"
+  sed -e "s|$esc|__ESHU_HOME__|g" -e 's/"installed_at": "[^"]*"/"installed_at": "INSTALLED_AT"/' \
+    -e 's/Eshu \(dev\|v[0-9][^ ]*\)/Eshu VERSION/g' -e 's#linux/\(arm64\|amd64\)#linux/ARCH#g'
+}
+
+# Tier-3 install cases run against a staged fake NornicDB binary under the
+# isolated ESHU_HOME, so every path the goldens pin is rewritten by
+# canon_install. The fake prints a fixed version line, and the remote and
+# no-source cases fail closed before any network runs, so the lane needs
+# no server and no network.
+capture_install() {
+  local bin="$1" prefix="$2"
+  local src="$ESHU_HOME/src"
+  mkdir -p "$src"
+  printf '#!/bin/sh\necho "NornicDB 1.0.0-parity"\n' >"$src/nornicdb-headless"
+  chmod +x "$src/nornicdb-headless"
+  printf '#!/bin/sh\necho "NornicDB 2.0.0-parity"\n' >"$src/nornicdb-other"
+  chmod +x "$src/nornicdb-other"
+  run_one "$bin" "$prefix" "local-install-version" 0 install nornicdb --from "$src/nornicdb-headless"
+  run_one "$bin" "$prefix" "local-install-no-from" 1 install nornicdb
+  run_one "$bin" "$prefix" "local-install-remote-no-sha" 1 install nornicdb --from https://example.com/releases/nornicdb-headless-darwin-arm64.tar.gz
+  run_one "$bin" "$prefix" "local-install-full-with-from" 1 install nornicdb --from "$src/nornicdb-headless" --full
+  run_one "$bin" "$prefix" "local-install-args" 1 install nornicdb extra
+  run_one "$bin" "$prefix" "local-install-reuse" 0 install nornicdb --from "$src/nornicdb-headless"
+  run_one "$bin" "$prefix" "local-install-exists" 1 install nornicdb --from "$src/nornicdb-other"
+  run_one "$bin" "$prefix" "local-install-force" 0 install nornicdb --from "$src/nornicdb-other" --force
+}
+
 # Tier-2 config cases run in a clean room (env -i): `config validate` reads
 # the ambient process environment, so the golden must not depend on whatever
 # ESHU_* the operator happens to export. The reference case pins the
@@ -414,6 +464,7 @@ case "$CMD" in
     capture_server "$BIN" core
     capture_local "$BIN" core
     capture_doctor "$BIN" core
+    capture_install "$BIN" core
     capture_config "$BIN" core
     ;;
   capture-cli)
@@ -441,6 +492,7 @@ case "$CMD" in
     capture_server "$BIN" core
     capture_local "$BIN" core
     capture_doctor "$BIN" core
+    capture_install "$BIN" core
     capture_config "$BIN" core
     capture_verify "$BIN" cli
     capture_stubs "$BIN" cli

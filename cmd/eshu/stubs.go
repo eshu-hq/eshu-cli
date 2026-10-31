@@ -43,7 +43,6 @@ var tierStubFamilies = []struct {
 	{"watch", "STUB: watcher lifecycle stays in core"},
 	{"w", "STUB: shortcut for watcher lifecycle stays in core"},
 	{"admin", "STUB: core-only repair stays in core"},
-	{"install", "STUB: backend tooling install stays in core"},
 }
 
 func init() {

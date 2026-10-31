@@ -46,6 +46,8 @@ moved_files() {
         cmd/eshu/mcp.go | cmd/eshu/mcp_test.go | \
         cmd/eshu/doctor.go | cmd/eshu/doctor_test.go | \
         cmd/eshu/workspace.go | cmd/eshu/workspace_test.go | \
+        cmd/eshu/install.go | cmd/eshu/install_test.go | \
+        internal/cli/graphinstall/* | \
         internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
