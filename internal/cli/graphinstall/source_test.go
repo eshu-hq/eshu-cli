@@ -385,10 +385,11 @@ func TestPackageBinarySizeAllowsUnderCap(t *testing.T) {
 }
 
 // stageExpandedPackage builds a fake pkgutil expansion tree holding one
-// binary of exactly size bytes (sparse: no disk is consumed).
-func stageExpandedPackage(t *testing.T, tempDir, comp, name string, size int64) string {
+// binary of exactly size bytes (sparse: no disk is consumed). treeRoot is
+// the directory expandPackage would have populated (the "expanded" dir).
+func stageExpandedPackage(t *testing.T, treeRoot, comp, name string, size int64) string {
 	t.Helper()
-	binDir := filepath.Join(tempDir, "expanded", comp, "Payload", "usr", "local", "bin")
+	binDir := filepath.Join(treeRoot, comp, "Payload", "usr", "local", "bin")
 	if err := os.MkdirAll(binDir, 0o755); err != nil {
 		t.Fatalf("stage expanded tree: %v", err)
 	}
@@ -407,12 +408,14 @@ func stageExpandedPackage(t *testing.T, tempDir, comp, name string, size int64) 
 }
 
 func TestSelectPackageBinaryRefusesOverCap(t *testing.T) {
-	// The wiring regression guard: neutralizing the select/stat/check tail
-	// in extractBinaryFromPackage must fail this test. It runs on Linux
-	// with a fake expanded tree (no pkgutil, no darwin gate).
+	// Pins selectPackageBinary (not the extractBinaryFromPackage entrypoint):
+	// neutralizing the select/stat/check tail inside selectPackageBinary
+	// must fail this test. It runs on Linux with a fake expanded tree
+	// (no pkgutil, no darwin gate). The entrypoint delegation is pinned by
+	// TestExtractBinaryFromPackageRefusesOverCapEndToEnd.
 	tempDir := t.TempDir()
 	expanded := filepath.Join(tempDir, "expanded")
-	stageExpandedPackage(t, tempDir, "comp", "nornicdb", (512<<20)+1)
+	stageExpandedPackage(t, filepath.Join(tempDir, "expanded"), "comp", "nornicdb", (512<<20)+1)
 	if _, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg"); err == nil ||
 		!strings.Contains(err.Error(), "meets or exceeds") {
 		t.Fatalf("got %v, want over-cap refusal", err)
@@ -425,7 +428,7 @@ func TestSelectPackageBinaryRefusesOverCap(t *testing.T) {
 func TestSelectPackageBinaryRefusesExactCap(t *testing.T) {
 	tempDir := t.TempDir()
 	expanded := filepath.Join(tempDir, "expanded")
-	stageExpandedPackage(t, tempDir, "comp", "nornicdb", 512<<20)
+	stageExpandedPackage(t, filepath.Join(tempDir, "expanded"), "comp", "nornicdb", 512<<20)
 	if _, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg"); err == nil ||
 		!strings.Contains(err.Error(), "meets or exceeds") {
 		t.Fatalf("got %v, want exact-cap refusal", err)
@@ -438,7 +441,7 @@ func TestSelectPackageBinaryRefusesExactCap(t *testing.T) {
 func TestSelectPackageBinarySelectsUnderCap(t *testing.T) {
 	tempDir := t.TempDir()
 	expanded := filepath.Join(tempDir, "expanded")
-	want := stageExpandedPackage(t, tempDir, "comp", "nornicdb", 1024)
+	want := stageExpandedPackage(t, filepath.Join(tempDir, "expanded"), "comp", "nornicdb", 1024)
 	got, err := selectPackageBinary(tempDir, expanded, "NornicDB.pkg")
 	if err != nil {
 		t.Fatalf("under-cap binary refused: %v", err)
@@ -448,6 +451,30 @@ func TestSelectPackageBinarySelectsUnderCap(t *testing.T) {
 	}
 	if _, statErr := os.Stat(tempDir); statErr != nil {
 		t.Fatalf("temp dir removed for an accepted package: %v", statErr)
+	}
+}
+
+func TestExtractBinaryFromPackageRefusesOverCapEndToEnd(t *testing.T) {
+	// Pins the delegation the unit tests cannot see: extractBinaryFromPackage
+	// must refuse an over-cap expanded binary through its real entrypoint.
+	// Neutralizing its selectPackageBinary call fails this test.
+	originalGOOS, originalExpand := packageGOOS, expandPackage
+	packageGOOS = "darwin"
+	expandPackage = func(pkgPath, targetDir string) error {
+		stageExpandedPackage(t, targetDir, "comp", "nornicdb", (512<<20)+1)
+		return nil
+	}
+	t.Cleanup(func() { packageGOOS, expandPackage = originalGOOS, originalExpand })
+
+	pkg := filepath.Join(t.TempDir(), "NornicDB.pkg")
+	if err := os.WriteFile(pkg, []byte("pkg"), 0o644); err != nil {
+		t.Fatalf("stage pkg: %v", err)
+	}
+	if _, _, cleanup, err := extractBinaryFromPackage(pkg); err == nil ||
+		!strings.Contains(err.Error(), "meets or exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	} else if cleanup != nil {
+		_ = cleanup()
 	}
 }
 
