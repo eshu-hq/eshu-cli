@@ -232,6 +232,56 @@ func TestPrepareArchiveExtractsAllowlistedBinary(t *testing.T) {
 	}
 }
 
+func TestPrepareArchiveRefusesOverCapMember(t *testing.T) {
+	// Fail-closed install: only the verified artifact bytes may become
+	// the managed binary. A member at or over the extraction cap must be
+	// refused, never installed as a truncated prefix.
+	dir := t.TempDir()
+	archive := writeOverCapArchive(t, dir)
+	if _, err := prepareInstallSource(t.Context(), archive, "", fakeReader("3.0.0")); err == nil ||
+		!strings.Contains(err.Error(), "exceeds") {
+		t.Fatalf("got %v, want over-cap refusal", err)
+	}
+}
+
+// writeOverCapArchive stages a managed-binary member one byte over the
+// 512 MiB extraction cap, streamed in chunks so no giant buffer is held.
+func writeOverCapArchive(t *testing.T, dir string) string {
+	t.Helper()
+	const overCap = (512 << 20) + 1
+	archivePath := filepath.Join(dir, "nornicdb-headless.tar.gz")
+	f, err := os.Create(archivePath)
+	if err != nil {
+		t.Fatalf("create archive: %v", err)
+	}
+	gz := gzip.NewWriter(f)
+	tw := tar.NewWriter(gz)
+	if err := tw.WriteHeader(&tar.Header{Name: "nornicdb-headless", Mode: 0o755, Size: overCap, Typeflag: tar.TypeReg}); err != nil {
+		t.Fatalf("write header: %v", err)
+	}
+	chunk := make([]byte, 1<<20)
+	for written := int64(0); written < overCap; {
+		n := int64(len(chunk))
+		if written+n > overCap {
+			n = overCap - written
+		}
+		if _, err := tw.Write(chunk[:n]); err != nil {
+			t.Fatalf("write body: %v", err)
+		}
+		written += n
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatalf("close tar: %v", err)
+	}
+	if err := gz.Close(); err != nil {
+		t.Fatalf("close gzip: %v", err)
+	}
+	if err := f.Close(); err != nil {
+		t.Fatalf("close file: %v", err)
+	}
+	return archivePath
+}
+
 func TestPrepareArchiveWithoutBinaryFails(t *testing.T) {
 	dir := t.TempDir()
 	archive := writeTestArchive(t, dir, map[string]string{"README.md": "docs"})
