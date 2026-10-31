@@ -20,7 +20,7 @@ func TestE3StubsPointAtCoreBinary(t *testing.T) {
 		"hosted-setup", "hosted-onboard", "assistant",
 		"competitive-parity", "evidence",
 		"evidence-packet-dogfood", "graph", "watch", "w",
-		"admin", "install",
+		"admin",
 	}
 	for _, name := range stubRoots {
 		t.Run(name, func(t *testing.T) {

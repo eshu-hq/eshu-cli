@@ -1,0 +1,14 @@
+{
+  "installed": true,
+  "reused": false,
+  "backend": "nornicdb",
+  "binary_path": "__ESHU_HOME__/bin/nornicdb-headless",
+  "manifest_path": "__ESHU_HOME__/graph-backends/nornicdb/manifest.json",
+  "version": "2.0.0-parity",
+  "sha256": "a9312f995206bdcae7a014595625c20ec10181d6fe319830d56e4ecca9fa022c",
+  "source_path": "__ESHU_HOME__/src/nornicdb-other",
+  "source_sha256": "a9312f995206bdcae7a014595625c20ec10181d6fe319830d56e4ecca9fa022c",
+  "source_kind": "local-binary",
+  "headless": false,
+  "installed_at": "INSTALLED_AT"
+}

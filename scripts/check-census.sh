@@ -41,6 +41,7 @@ check_count cli/evidredact 2
 check_count urlredact 1
 check_count cli/resultshape 1
 check_count cli/doctor 3
+check_count cli/graphinstall 2
 check_count buildinfo 1
 # Tier-3 note: evidredact 1->2 and mcpsetup 3->4 come from the endpoint.go
 # move (Endpoint walks urlredact.Query). Core shows the same edge:
