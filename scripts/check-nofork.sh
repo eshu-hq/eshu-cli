@@ -62,6 +62,7 @@ moved_files() {
         internal/cli/mcpsetup/mcpsetup_verify_cli_test.go | \
         internal/urlredact/query_tier3_test.go | \
         internal/urlredact/urlredact_cli_test.go | \
+        internal/cli/doctor/doctor_cli_test.go | \
         internal/cli/config/config_cli_test.go | \
         internal/cli/freshness/freshness_cli_test.go | \
         internal/cli/freshness/freshness_render_cli_test.go | \
