@@ -198,6 +198,10 @@ func TestConfigureDatabaseBackendTable(t *testing.T) {
 			t.Fatalf("ConfigureDatabaseBackend(%q) = (%q, %v)", tc.in, got, err)
 		}
 		loaded := Load()
+		if len(loaded) != len(tc.values) {
+			t.Fatalf("ConfigureDatabaseBackend(%q) wrote %v, want exactly %d keys",
+				tc.in, loaded, len(tc.values))
+		}
 		for k, v := range tc.values {
 			if loaded[k] != v {
 				t.Fatalf("ConfigureDatabaseBackend(%q)[%q] = %q, want %q (full map %v)",
