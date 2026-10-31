@@ -28,7 +28,7 @@ func TestEndpointRemovesUserinfoKeepsTarget(t *testing.T) {
 
 func TestEndpointRedactsCredentialQueryAndDropsFragment(t *testing.T) {
 	got := evidredact.Endpoint("https://app.example.com/cb?api_key=topsecret&next=/v0/y#access_token= fragtok")
-	if strings.Contains(got, "topsecret") || strings.Contains(got, "fragtock") || strings.Contains(got, "fragtok") {
+	if strings.Contains(got, "topsecret") || strings.Contains(got, "fragtok") {
 		t.Fatalf("Endpoint kept credential material: %q", got)
 	}
 	if strings.Contains(got, "#") {
@@ -81,6 +81,7 @@ func TestRedactTokenMasksByLength(t *testing.T) {
 		{"   ", ""},
 		{"short", "*****"},
 		{"12345678", "********"},
+		{"123456789", "1234*****"},
 		{"Bearer abcdefghijklmnop", "Bear*******************"},
 	} {
 		if got := evidredact.RedactToken(tc.in); got != tc.want {
