@@ -48,9 +48,6 @@ moved_files() {
         cmd/eshu/workspace.go | cmd/eshu/workspace_test.go | \
         cmd/eshu/install.go | cmd/eshu/install_test.go | \
         internal/cli/graphinstall/* | \
-        internal/cli/graphinstall/graphinstall_cli_test.go | \
-        internal/cli/graphinstall/graphinstall_source_cli_test.go | \
-        internal/cli/graphinstall/graphinstall_archive_cli_test.go | \
         internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go | \
         internal/cli/resultshape/shape_cli_test.go | \
         internal/cli/apierr/apierr_cli_test.go | \
