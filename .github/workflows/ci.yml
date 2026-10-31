@@ -40,7 +40,8 @@ env:
   # Increment 8 (trace 0 to 100%): total 53.1%.
   # Increment 9 (opdigest 0 to 98.4%): total 57.9%.
   # Increment 10 (mcpsetup 0 to 98.4%): total 64.6%.
-  COVERAGE_FLOOR: "64.6"
+  # Increment 11 (urlredact 42.9 to 99.2%): total 66.4%.
+  COVERAGE_FLOOR: "66.4"
 
 jobs:
   changes:

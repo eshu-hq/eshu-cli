@@ -60,7 +60,8 @@ moved_files() {
         internal/cli/opdigest/opdigest_cli_test.go | \
         internal/cli/mcpsetup/mcpsetup_cli_test.go | \
         internal/cli/mcpsetup/mcpsetup_verify_cli_test.go | \
-        internal/urlredact/query_tier3_test.go)
+        internal/urlredact/query_tier3_test.go | \
+        internal/urlredact/urlredact_cli_test.go)
         continue
         ;;
     esac

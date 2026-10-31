@@ -63,6 +63,11 @@ localsupervisor in any populated closure; no fork/vendor/replace.
 - `cmd/eshu/doctor_test.go`, `cmd/eshu/workspace_test.go`,
   `internal/urlredact/query_tier3_test.go`: unit proof for the new surface
   (registration, request path, removed/retained contracts, query walk).
+- `internal/urlredact/urlredact_cli_test.go`: unit proof for the urlredact
+  decode and authority readers (escape tables, boundary depths, authority
+  rewrite, fail-closed error reasons) plus the query-walk branches the
+  tier-3 test leaves uncovered, under the coverage ratchet
+  (eshu-hq/eshu-cli#6).
 
 ## Tier-3 surface decisions
 
