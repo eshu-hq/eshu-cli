@@ -235,6 +235,25 @@ jobs:
           sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
           git ls-files '*.sh' | xargs --no-run-if-empty shellcheck --severity=warning
 
+  image:
+    name: image (docker build)
+    needs: changes
+    if: needs.changes.outputs.image == 'true' || needs.changes.outputs.workflow == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Build image and smoke-test the binary
+        run: |
+          docker build -t eshu-cli:ci .
+          docker run --rm eshu-cli:ci --help
+          docker run --rm eshu-cli:ci version
+
   workflow-lint:
     name: workflow-lint (actionlint)
     needs: changes
@@ -347,7 +366,7 @@ jobs:
 
   ci-complete:
     name: ci-complete (required aggregator)
-    needs: [changes, lint, test, race, shell, workflow-lint, govulncheck, gosec]
+    needs: [changes, lint, test, race, shell, workflow-lint, govulncheck, gosec, image]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -357,7 +376,7 @@ jobs:
       - name: Aggregate lane results
         run: |
           fail=0
-          for lane in changes lint test race shell workflow-lint govulncheck gosec; do
+          for lane in changes lint test race shell workflow-lint govulncheck gosec image; do
             case "$lane" in
               changes) result="${{ needs.changes.result }}" ;;
               lint) result="${{ needs.lint.result }}" ;;
@@ -367,6 +386,7 @@ jobs:
               workflow-lint) result="${{ needs.workflow-lint.result }}" ;;
               govulncheck) result="${{ needs.govulncheck.result }}" ;;
               gosec) result="${{ needs.gosec.result }}" ;;
+              image) result="${{ needs.image.result }}" ;;
             esac
             echo "$lane: $result"
             if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
