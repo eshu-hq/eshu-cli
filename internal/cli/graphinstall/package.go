@@ -28,12 +28,20 @@ func extractBinaryFromPackage(packagePath string) (string, string, func() error,
 	if runtime.GOOS != "darwin" {
 		return "", "", nil, fmt.Errorf("nornicdb package sources are only supported on darwin today")
 	}
+	// Refuse before pkgutil expansion can fill temp disk: a compressed
+	// artifact already at the cap cannot expand under it, and expansion
+	// needs cap-sized scratch on the temp volume.
+	if err := checkPackageExpansionBound(packagePath); err != nil {
+		return "", "", nil, err
+	}
 	tempDir, err := os.MkdirTemp("", "eshu-nornicdb-package-*")
 	if err != nil {
 		return "", "", nil, fmt.Errorf("create package extraction directory: %w", err)
 	}
 	expandedDir := filepath.Join(tempDir, "expanded")
-	if err := expandPackage(packagePath, expandedDir); err != nil {
+	// expandPackageChecked re-checks the bound so the subprocess has a
+	// single chokepoint no caller can bypass.
+	if err := expandPackageChecked(packagePath, expandedDir); err != nil {
 		_ = os.RemoveAll(tempDir)
 		return "", "", nil, err
 	}
@@ -82,6 +90,57 @@ func selectPackageBinary(tempDir, expandedDir, packagePath string) (string, erro
 		return "", err
 	}
 	return chosen, nil
+}
+
+// expandPackageChecked enforces the pre-expansion bound before the pkgutil
+// subprocess runs, so a refused package never fills temp disk. Extracted
+// (rather than inlined in extractBinaryFromPackage) so the check-then-expand
+// ordering is pinned on Linux CI, where the darwin gate blocks the full path.
+func expandPackageChecked(packagePath, expandedDir string) error {
+	if err := checkPackageExpansionBound(packagePath); err != nil {
+		return err
+	}
+	return expandPackage(packagePath, expandedDir)
+}
+
+// checkPackageExpansionBound refuses a .pkg source before pkgutil expansion:
+// the compressed artifact itself must sit under the shared cap (expansion
+// only grows it), and the temp volume must hold cap-sized scratch for the
+// expansion tree. Both legs fail closed with an actionable error.
+func checkPackageExpansionBound(packagePath string) error {
+	info, err := os.Stat(packagePath)
+	if err != nil {
+		return fmt.Errorf("stat nornicdb package %q: %w", packagePath, err)
+	}
+	if err := checkPackageFileSize(info, packagePath); err != nil {
+		return err
+	}
+	tempDir := os.TempDir()
+	free, err := tempVolumeFreeBytes(tempDir)
+	if err != nil {
+		return fmt.Errorf("check temp disk space for nornicdb package %q: %w", packagePath, err)
+	}
+	return checkPackageTempFree(free, tempDir, packagePath)
+}
+
+// checkPackageFileSize refuses a package artifact that already meets or
+// exceeds the shared extraction cap. The artifact is compressed, so its
+// expansion can only grow past the cap the expanded binary would face.
+func checkPackageFileSize(info os.FileInfo, packagePath string) error {
+	if info.Size() >= nornicDBBinaryMaxBytes {
+		return fmt.Errorf("nornicdb package %q is %d bytes, meeting or exceeding the 512 MiB pre-expansion bound; refusing before pkgutil expansion fills temp disk", packagePath, info.Size())
+	}
+	return nil
+}
+
+// checkPackageTempFree refuses expansion when the temp volume lacks room for
+// a cap-sized expansion tree, naming the remedy (free space or TMPDIR) so
+// the operator can act without reading source.
+func checkPackageTempFree(freeBytes uint64, tempDir, packagePath string) error {
+	if freeBytes < nornicDBBinaryMaxBytes {
+		return fmt.Errorf("temp directory %q has only %d bytes free, below the 512 MiB needed to expand nornicdb package %q safely; free disk space or set TMPDIR to a volume with more room", tempDir, freeBytes, packagePath)
+	}
+	return nil
 }
 
 // checkPackageBinarySize refuses an expanded Payload binary that meets or
