@@ -35,7 +35,8 @@ env:
   # First measured baseline for eshu-hq/eshu-cli#6: `go test
   # -covermode=atomic` total 43.8% of statements. Raise only; never lower.
   # Increment 5 (playbooks 0 to 100%): total 44.5%.
-  COVERAGE_FLOOR: "44.5"
+  # Increment 6 (reposelector 0 to 100%): total 45.7%.
+  COVERAGE_FLOOR: "45.7"
 
 jobs:
   changes:
