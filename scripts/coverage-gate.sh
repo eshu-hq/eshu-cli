@@ -14,7 +14,7 @@ summary="${3:-}"
 # Fail closed on a non-numeric floor: awk would coerce it to 0 and the
 # gate would pass vacuously (eshu-hq/eshu-cli#35 review P1).
 case "$floor" in
-'' | *[!0-9.]* | *.*.* | -*)
+'' | '.' | *[!0-9.]* | *.*.* | -*)
   echo "coverage-gate: bad floor '$floor' (want a number like 41.7)" >&2
   exit 1
   ;;

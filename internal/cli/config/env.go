@@ -5,9 +5,9 @@ package config
 
 import (
 	"bufio"
-	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -139,15 +139,17 @@ func Reset() error {
 // entry sorted by line so the file's byte content is stable across runs and
 // diffable. The file is written 0600 because it holds API keys.
 func write(config map[string]string) error {
-	var lines []string
-	for k, v := range config {
-		lines = append(lines, fmt.Sprintf("%s=%s", k, v))
+	// Sort the keys first: ranging over the map visits keys in random
+	// order, so an order-dependent branch here would cover different
+	// statements on different runs and flake statement-coverage totals.
+	keys := make([]string, 0, len(config))
+	for k := range config {
+		keys = append(keys, k)
 	}
-	// Sort for stable output.
-	for i := 1; i < len(lines); i++ {
-		for j := i; j > 0 && lines[j] < lines[j-1]; j-- {
-			lines[j], lines[j-1] = lines[j-1], lines[j]
-		}
+	sort.Strings(keys)
+	lines := make([]string, 0, len(config))
+	for _, k := range keys {
+		lines = append(lines, k+"="+config[k])
 	}
 	// Unwrapped on purpose, same reason as SetValue's os.MkdirAll: the
 	// *PathError already names the .env path the CLI failed to write.
