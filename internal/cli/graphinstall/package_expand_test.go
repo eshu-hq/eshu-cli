@@ -154,3 +154,12 @@ func TestBoundedExpansionReportsSubprocessFailure(t *testing.T) {
 		t.Fatalf("got %v, want subprocess output in the error", err)
 	}
 }
+
+func TestBoundedExpansionRejectsNonPositiveBound(t *testing.T) {
+	// A non-positive bound is a caller bug, not a small allowance: refuse
+	// before spawning anything.
+	target := filepath.Join(t.TempDir(), "expanded")
+	if err := runBoundedExpansion(nil, "NornicDB.pkg", target, 0, 25*time.Millisecond); err == nil {
+		t.Fatal("runBoundedExpansion(bound=0) = nil, want refusal")
+	}
+}
