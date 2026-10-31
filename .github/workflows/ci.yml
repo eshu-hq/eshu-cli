@@ -37,7 +37,8 @@ env:
   # Increment 5 (playbooks 0 to 100%): total 44.5%.
   # Increment 6 (reposelector 0 to 100%): total 45.7%.
   # Increment 7 (component 0 to 100%): total 48.3%.
-  COVERAGE_FLOOR: "48.3"
+  # Increment 8 (trace 0 to 100%): total 53.1%.
+  COVERAGE_FLOOR: "53.1"
 
 jobs:
   changes:
