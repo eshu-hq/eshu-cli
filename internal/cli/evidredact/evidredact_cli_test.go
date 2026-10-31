@@ -42,6 +42,14 @@ func TestEndpointRedactsCredentialQueryAndDropsFragment(t *testing.T) {
 	}
 }
 
+func TestEndpointDropsBenignFragmentWhole(t *testing.T) {
+	raw := "https://app.example.com/cb?next=/v0/y#section"
+	want := "https://app.example.com/cb?next=/v0/y"
+	if got := evidredact.Endpoint(raw); got != want {
+		t.Fatalf("Endpoint(%q) = %q, want %q", raw, got, want)
+	}
+}
+
 func TestEndpointBlankAndUnparseable(t *testing.T) {
 	for _, raw := range []string{"", "   "} {
 		if got := evidredact.Endpoint(raw); got != "" {
