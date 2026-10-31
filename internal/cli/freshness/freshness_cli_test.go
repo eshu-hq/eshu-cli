@@ -119,6 +119,42 @@ func TestErrorCodeFromTransport(t *testing.T) {
 	}
 }
 
+// TestErrorCodeFromTransportPrefersMessageOverStatus pins the load-bearing
+// ordering in ErrorCodeFromTransport (owner advisory, #48): the message
+// checks run before the status switch, so an error carrying BOTH an HTTP
+// status AND a refused/failed message classifies as backend_unavailable
+// rather than by its status.
+func TestErrorCodeFromTransportPrefersMessageOverStatus(t *testing.T) {
+	cases := []struct {
+		name string
+		err  error
+		want string
+	}{
+		{"refused-beats-400", statusErr{status: 400, msg: "dial tcp: connection refused"}, "backend_unavailable"},
+		{"failed-beats-404", statusErr{status: 404, msg: "request failed after retries"}, "backend_unavailable"},
+		{"refused-beats-418", statusErr{status: 418, msg: "connection refused by peer"}, "backend_unavailable"},
+		{"failed-beats-501", statusErr{status: 501, msg: "request failed: upstream reset"}, "backend_unavailable"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			if got := ErrorCodeFromTransport(tc.err); got != tc.want {
+				t.Errorf("ErrorCodeFromTransport(%v) = %q, want %q", tc.err, got, tc.want)
+			}
+		})
+	}
+}
+
+// TestExitCodeForTransportProducedCodes pins the transport-produced codes
+// through ExitCodeForErrorCode (owner advisory, #48): backend_unavailable
+// and api_error both exit 1.
+func TestExitCodeForTransportProducedCodes(t *testing.T) {
+	for _, code := range []string{"backend_unavailable", "api_error"} {
+		if got := ExitCodeForErrorCode(code); got != 1 {
+			t.Errorf("ExitCodeForErrorCode(%q) = %d, want 1", code, got)
+		}
+	}
+}
+
 func TestFinishJSONModes(t *testing.T) {
 	env := Envelope{Data: map[string]any{"count": float64(1)}}
 	// JSON mode writes the envelope and returns the command error untouched.
