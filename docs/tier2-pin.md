@@ -48,7 +48,8 @@ Destination-authored tests (coverage ratchet, eshu-hq/eshu-cli#6): new
 `internal/cli/mcpsetup/mcpsetup_cli_test.go`, and
 `internal/cli/mcpsetup/mcpsetup_verify_cli_test.go`
 (the mcpsetup increment ships two files to stay under the 500-line file
-cap), per the ratchet standing
+cap), and
+`internal/cli/config/config_cli_test.go`, per the ratchet standing
 ruling (eshu-hq/eshu-cli#6); Tier-1 names its own in `docs/tier1-pin.md`.
 Exclusions retire at re-pin if core gains the test.
 
