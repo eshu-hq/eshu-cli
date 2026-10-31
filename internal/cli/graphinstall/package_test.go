@@ -159,6 +159,7 @@ func TestCheckPackageExpansionBoundStatsMissingPackage(t *testing.T) {
 		t.Fatalf("got %v, want stat error", err)
 	}
 }
+
 func TestPackageBinarySizeRefusesOverCap(t *testing.T) {
 	// Fail-closed darwin path: the expanded Payload binary must face the
 	// same 512 MiB cap as archive members (issue #29).
