@@ -1,0 +1,6 @@
+# Keep the image build context to what the Go build reads.
+.git
+.github
+docs
+coverage-*.out
+*.out
