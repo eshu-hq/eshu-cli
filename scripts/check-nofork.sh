@@ -55,6 +55,7 @@ moved_files() {
         internal/cli/evidredact/evidredact_cli_test.go | \
         internal/cli/playbooks/playbooks_cli_test.go | \
         internal/cli/reposelector/reposelector_cli_test.go | \
+        internal/cli/component/component_cli_test.go | \
         internal/urlredact/query_tier3_test.go)
         continue
         ;;
