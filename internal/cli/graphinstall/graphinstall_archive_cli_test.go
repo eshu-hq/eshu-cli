@@ -69,6 +69,7 @@ func downloadTestServer(t *testing.T, body string, contentLength string) *httpte
 
 func TestDownloadInstallSourceFailureSequence(t *testing.T) {
 	ctx := t.Context()
+	//nolint:staticcheck // Pins the documented nil tolerance in downloadInstallSource (nil defaults to Background); the literal nil is the point.
 	if _, err := downloadInstallSource(nil, downloadTestServer(t, "bytes", "").URL+"/n"); err != nil {
 		t.Fatalf("nil context must default to Background: %v", err)
 	}
