@@ -35,6 +35,12 @@ patch file). `internal/urlredact` copies only the Authority seam (`authority.go`
 test vectors (nothing in the copied set reads `BoundaryCases` /
 `DifferentialCases`; dropping them also keeps the credential scan clean).
 
+Destination-authored tests (coverage ratchet, eshu-hq/eshu-cli#6): new
+`*_cli_test.go` files testing frozen sources are named exclusions in
+`scripts/check-nofork.sh`, never pin rows — `internal/cli/resultshape
+/shape_cli_test.go` is the first, per the ratchet standing ruling. Exclusions
+retire at re-pin if core gains the test.
+
 | `dest` | sha256 |
 |---|---|
 | `internal/cli/opdigest/artifact.go` | 23d4e6e11e72b1a93bca33b379f3f518086a97333ec67d710ee2eb67ecabd6d2 |
