@@ -47,6 +47,7 @@ jobs:
       go: ${{ steps.filter.outputs.go }}
       deps: ${{ steps.filter.outputs.deps }}
       fixtures: ${{ steps.filter.outputs.fixtures }}
+      gate: ${{ steps.filter.outputs.gate }}
       shell: ${{ steps.filter.outputs.shell }}
       image: ${{ steps.filter.outputs.image }}
       workflow: ${{ steps.filter.outputs.workflow }}
@@ -74,6 +75,12 @@ jobs:
               - '**/*.yaml'
               - '**/*.yml'
               - '*.example.*'
+            # Gate inputs: the race lane enforces COVERAGE_FLOOR, so any
+            # edit to the gate script or the Makefile floor/profile wiring
+            # must select the race lane (eshu-hq/eshu-cli#35 review P1).
+            gate:
+              - 'scripts/coverage-gate.sh'
+              - 'Makefile'
             shell:
               - '**/*.sh'
             image:
@@ -167,7 +174,7 @@ jobs:
   race:
     name: race (go test -race)
     needs: changes
-    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.workflow == 'true'
+    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.gate == 'true' || needs.changes.outputs.workflow == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

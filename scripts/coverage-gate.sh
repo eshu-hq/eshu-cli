@@ -11,6 +11,15 @@ profile="${1:?usage: coverage-gate.sh <coverprofile> <floor-percent> [summary-fi
 floor="${2:?usage: coverage-gate.sh <coverprofile> <floor-percent> [summary-file]}"
 summary="${3:-}"
 
+# Fail closed on a non-numeric floor: awk would coerce it to 0 and the
+# gate would pass vacuously (eshu-hq/eshu-cli#35 review P1).
+case "$floor" in
+'' | *[!0-9.]* | *.*.* | -*)
+  echo "coverage-gate: bad floor '$floor' (want a number like 41.7)" >&2
+  exit 1
+  ;;
+esac
+
 total="$(go tool cover -func="$profile" | awk '/^total:/ { gsub(/%/, "", $3); print $3 }')"
 if [ -z "$total" ]; then
 	echo "coverage-gate: no total line in $profile" >&2
