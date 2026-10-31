@@ -68,6 +68,10 @@ localsupervisor in any populated closure; no fork/vendor/replace.
   rewrite, fail-closed error reasons) plus the query-walk branches the
   tier-3 test leaves uncovered, under the coverage ratchet
   (eshu-hq/eshu-cli#6).
+- `internal/cli/doctor/doctor_cli_test.go`: unit proof for the doctor
+  report branches the copied tests leave uncovered (healthy-machine happy
+  path, degraded-API status, write-error swallow contract), under the
+  coverage ratchet (eshu-hq/eshu-cli#6).
 
 ## Tier-3 surface decisions
 
