@@ -1,13 +1,80 @@
-# Bootstrap CI: path-aware lanes with a ci-complete aggregator.
+# eshu-cli CI gates (epic eshu-hq/eshu-cli#1; bootstrap leaf #3).
 #
-# Part of eshu-hq/eshu-cli#1 (epic). Bootstrap leaf: eshu-hq/eshu-cli#3.
-# Lane bodies stay dormant until their inputs land (no go.mod yet):
-# Go lanes skip with success when go.mod is absent, so docs-only PRs
-# run no lane and ci-complete still reports success.
+# Thin caller: a `changes` job classifies paths, a `lanes` job runs the
+# shared lane bodies inside the pinned eshu-hq/.github reusable, and
+# `ci-complete` aggregates. `ci-complete` is the ONLY context the repo
+# ruleset requires, under the exact name "ci-complete (required
+# aggregator)"; renaming it makes every PR unmergeable. The lane set
+# inside `lanes` is lint, test, race, shell, image, govulncheck, gosec,
+# actionlint; the inner names appear as `lanes / <lane>`.
 #
-# Fork safety: contents: read everywhere, no secrets, actions pinned by
-# SHA (tag kept as an inline comment), per-PR concurrency cancellation,
-# and timeout-minutes on every job.
+# Lane bodies come from
+# eshu-hq/.github/.github/workflows/go-collector-ci.yml pinned to the v2
+# commit SHA (the peeled tag, never the mutable tag). Each run-* input
+# below is the exact expression the retired inline lane used as its `if:`.
+# `changes` has no `if:` guard on purpose: every lane needs it, so skipping
+# it on a schedule run would skip every lane.
+#
+# The separate parity.yml workflow (byte parity, census, no-fork freeze,
+# tier-1 parity) is untouched by this move.
+#
+# Accepted deltas of the move (documented, not silent):
+# - Inner lane names change: the reusable names its jobs lint, test, race,
+#   shell, image, govulncheck, gosec, actionlint, shown as `lanes / <lane>`
+#   instead of e.g. "lint (vet, golangci-lint, format, tidy, file cap)".
+#   Only `ci-complete (required aggregator)` is ruleset-required, and it
+#   keeps its name. `changes` keeps its name, "Detect changed paths".
+# - The CI race lane no longer runs scripts/coverage-gate.sh. The reusable
+#   computes the same total from `go tool cover -func` and fails below
+#   coverage-floor, but the per-package table in the step summary becomes
+#   the last 30 `go tool cover -func` lines, the floor check no longer
+#   rejects a non-numeric value in shell (the input is typed as a number),
+#   and the artifact is `coverage-eshu-cli` (14 days) instead of
+#   `coverage-race-<sha>` with if-no-files-found: error. `make race` still
+#   runs scripts/coverage-gate.sh; TestCoverageFloorParity pins Makefile
+#   and this file to one floor.
+# - govulncheck runs `govulncheck -scan package ./...` (the reusable's Go
+#   1.26 SSA-safe mode) instead of the default symbol-level `./...`, so
+#   reachability analysis of called symbols is no longer applied. The
+#   scheduled tracking issue is no longer opened or updated (no reusable
+#   hook yet; a red scheduled run replaces it) and the `issues: write`
+#   grant goes with it.
+# - gosec stays advisory (gosec-fail-on-findings is not set). The SARIF no
+#   longer uploads to the Security tab (the reusable keeps a read-only
+#   token for fork safety); findings ride the 14-day `gosec-eshu-cli`
+#   artifact, and the `security-events: write` grant goes with it.
+# - The `go.mod` presence probe is gone: go.mod has landed, so the lanes
+#   never go dormant.
+# - The 500-line cap scans every .go file under the tree via find instead
+#   of `git ls-files '*.go'`; the tidy check is `go mod tidy -diff` plus
+#   git diff on go.mod and go.sum. setup-go reads go.mod (go 1.26.10)
+#   instead of a GO_VERSION env, with its module cache on.
+# - shellcheck runs from the reusable's ludeeus/action-shellcheck pin
+#   (2.0.0) at the action's default severity, instead of
+#   `shellcheck --severity=warning` over `git ls-files '*.sh'`. All five
+#   scripts pass at default severity.
+# - The image lane is a bare `docker build` of ./Dockerfile tagged
+#   eshu-cli:ci with no --build-arg, so the Dockerfile ARG GO_VERSION
+#   default applies (TestImageToolchainMatchesGoMod pins it to go.mod).
+#   The two smoke runs (--help, version) ride the image-command input.
+# - actionlint runs from the sha256-checked 1.7.12 tarball instead of
+#   `go install ...@v1.7.7`, so it is a newer pin and findings of 1.7.12
+#   apply.
+# - Tool pins that are inputs here: golangci-lint v2.12.2, govulncheck
+#   v1.9.0, gosec v2.30.0 (newer than the reusable default v2.27.1, held
+#   at the retired pin), actionlint 1.7.12 (sha256 8aca8db9...a3d8).
+#
+# The coverage ratchet is live: coverage-floor sits just under the measured
+# total, is pinned equal to the Makefile by ci_workflow_test.go, and may
+# only rise. The reusable pin moves by a reviewed commit, with the contract
+# test updated alongside it.
+#
+# Pinned actions (SHAs synced with the uses: lines below; re-verify with
+# git ls-remote when auditing):
+#   actions/checkout v7.0.1              3d3c42e5aac5ba805825da76410c181273ba90b1
+#   dorny/paths-filter v4.0.3            ceb8a2b8f2d89434be7ff52d3de7ec3738c5cc9d
+#   eshu-hq/.github go-collector-ci v2   4d01ab90baf5dd77c21cc1ee6bdf701332613449
+# Every other action runs inside the reusable at that same pin.
 
 name: ci
 
@@ -26,24 +93,6 @@ permissions:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
-
-env:
-  GO_VERSION: "1.26.10"
-  GOLANGCI_LINT_VERSION: v2.12.2
-  GOVULNCHECK_VERSION: v1.9.0
-  GOSEC_VERSION: v2.30.0
-  # First measured baseline for eshu-hq/eshu-cli#6: `go test
-  # -covermode=atomic` total 43.8% of statements. Raise only; never lower.
-  # Increment 5 (playbooks 0 to 100%): total 44.5%.
-  # Increment 6 (reposelector 0 to 100%): total 45.7%.
-  # Increment 7 (component 0 to 100%): total 48.3%.
-  # Increment 8 (trace 0 to 100%): total 53.1%.
-  # Increment 9 (opdigest 0 to 98.4%): total 57.9%.
-  # Increment 10 (mcpsetup 0 to 98.4%): total 64.6%.
-  # Increment 11 (urlredact 42.9 to 99.2%): total 66.4%.
-  # Increment 12 (config 40.7 to 95.3%): total 67.6%.
-  # Increment 13 (cmd/eshu command handlers, #6): total 90.4%, floor 90.2.
-  COVERAGE_FLOOR: "90.2"
 
 jobs:
   changes:
@@ -84,9 +133,10 @@ jobs:
               - '**/*.yaml'
               - '**/*.yml'
               - '*.example.*'
-            # Gate inputs: the race lane enforces COVERAGE_FLOOR, so any
-            # edit to the gate script or the Makefile floor/profile wiring
-            # must select the race lane (eshu-hq/eshu-cli#35 review P1).
+            # Gate inputs: the race lane enforces the coverage floor, so
+            # any edit to the gate script or the Makefile floor/profile
+            # wiring must select the race lane (eshu-hq/eshu-cli#35
+            # review P1).
             gate:
               - 'scripts/coverage-gate.sh'
               - 'Makefile'
@@ -98,276 +148,49 @@ jobs:
             workflow:
               - '.github/workflows/**'
 
-  lint:
-    name: lint (vet, golangci-lint, format, tidy, file cap)
-    needs: changes
-    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        if: hashFiles('go.mod') != ''
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: go vet
-        if: hashFiles('go.mod') != ''
-        run: go vet ./...
-      - name: Install golangci-lint
-        if: hashFiles('go.mod') != ''
-        run: go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@${{ env.GOLANGCI_LINT_VERSION }}
-      - name: golangci-lint run
-        if: hashFiles('go.mod') != ''
-        run: |
-          "$(go env GOPATH)/bin/golangci-lint" run ./...
-      - name: Format check (gofumpt via golangci-lint fmt)
-        if: hashFiles('go.mod') != ''
-        run: |
-          "$(go env GOPATH)/bin/golangci-lint" fmt --diff ./...
-      - name: go mod tidy drift check
-        if: hashFiles('go.mod') != ''
-        run: |
-          cp go.mod /tmp/ci-go.mod.orig
-          cp go.sum /tmp/ci-go.sum.orig
-          go mod tidy
-          diff /tmp/ci-go.mod.orig go.mod
-          diff /tmp/ci-go.sum.orig go.sum
-      - name: 500-line file cap (plain wc, no plugin)
-        run: |
-          fail=0
-          while IFS= read -r f; do
-            lines=$(wc -l < "$f" | tr -d ' ')
-            if [ "$lines" -gt 500 ]; then
-              echo "OVER CAP: $f has $lines lines (max 500)"
-              fail=1
-            fi
-          done < <(git ls-files '*.go')
-          exit "$fail"
-
-  test:
-    name: test (build + go test)
-    needs: changes
-    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.fixtures == 'true' || needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        if: hashFiles('go.mod') != ''
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: go build and go test
-        if: hashFiles('go.mod') != ''
-        run: |
-          go build ./...
-          go test ./... -count=1
-      - name: No Go module yet, nothing to build or test
-        if: hashFiles('go.mod') == ''
-        run: |
-          echo "No go.mod: lane skips with success until Go code lands."
-
-  race:
-    name: race (go test -race)
-    needs: changes
-    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.gate == 'true' || needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        if: hashFiles('go.mod') != ''
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: go test -race with coverage
-        if: hashFiles('go.mod') != ''
-        run: go test ./... -race -count=1 -covermode=atomic -coverprofile=coverage-race.out
-      - name: Upload race coverage profile
-        if: hashFiles('go.mod') != ''
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: coverage-race-${{ github.sha }}
-          path: coverage-race.out
-          retention-days: 14
-          if-no-files-found: error
-      - name: Coverage summary and floor check
-        if: hashFiles('go.mod') != ''
-        run: bash scripts/coverage-gate.sh coverage-race.out "${{ env.COVERAGE_FLOOR }}" "$GITHUB_STEP_SUMMARY"
-      - name: No Go module yet, race skips
-        if: hashFiles('go.mod') == ''
-        run: |
-          echo "No go.mod: race lane skips with success until Go code lands (issues #5 and #6 wire the race proof and coverage gate)."
-
-  shell:
-    name: shell (shellcheck)
-    needs: changes
-    if: needs.changes.outputs.shell == 'true' || needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: shellcheck over changed shell scripts
-        run: |
-          sudo apt-get update -qq && sudo apt-get install -y -qq shellcheck
-          git ls-files '*.sh' | xargs --no-run-if-empty shellcheck --severity=warning
-
-  image:
-    name: image (docker build)
-    needs: changes
-    if: needs.changes.outputs.image == 'true' || needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Build image and smoke-test the binary
-        run: |
-          docker build --build-arg GO_VERSION="${{ env.GO_VERSION }}" -t eshu-cli:ci .
-          docker run --rm eshu-cli:ci --help
-          docker run --rm eshu-cli:ci version
-
-  workflow-lint:
-    name: workflow-lint (actionlint)
-    needs: changes
-    if: needs.changes.outputs.workflow == 'true'
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: actionlint
-        run: |
-          go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.7
-          BINARY="$(go env GOPATH)/bin/actionlint"
-          "$BINARY"
-
-  govulncheck:
-    name: govulncheck (vulnerability scan)
-    needs: changes
-    if: needs.changes.outputs.deps == 'true' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      issues: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        if: hashFiles('go.mod') != ''
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: Install govulncheck
-        if: hashFiles('go.mod') != ''
-        run: go install golang.org/x/vuln/cmd/govulncheck@${{ env.GOVULNCHECK_VERSION }}
-      - name: govulncheck scan
-        if: hashFiles('go.mod') != ''
-        run: |
-          "$(go env GOPATH)/bin/govulncheck" ./...
-      - name: No Go module yet, scan skips
-        if: hashFiles('go.mod') == ''
-        run: |
-          echo "No go.mod: govulncheck skips with success until Go code lands."
-      - name: Open or update a tracking issue on findings
-        # Fork PRs keep a read-only token: the issue step runs only on
-        # same-repo events (push, schedule, same-repo PRs).
-        if: failure() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.fork == false)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          title="govulncheck findings on ${{ github.ref_name }}"
-          body="govulncheck failed on run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}. Triage findings in the open; no blanket exclusions."
-          existing=$(gh issue list --search "$title" --state open --json number --jq -r '.[0].number // empty')
-          if [ -z "$existing" ]; then
-            gh issue create --title "$title" --body "$body" --label enhancement
-          else
-            gh issue comment "$existing" --body "$body"
-          fi
-
-  gosec:
-    name: gosec (SARIF, advisory)
-    needs: changes
-    if: needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
-      security-events: write
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-      - name: Set up Go
-        if: hashFiles('go.mod') != ''
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ env.GO_VERSION }}
-          cache: false
-      - name: Install gosec
-        if: hashFiles('go.mod') != ''
-        run: go install github.com/securego/gosec/v2/cmd/gosec@${{ env.GOSEC_VERSION }}
-      - name: gosec scan to SARIF (advisory until the false-positive rate is measured)
-        if: hashFiles('go.mod') != ''
-        continue-on-error: true
-        run: |
-          "$(go env GOPATH)/bin/gosec" -fmt sarif -out gosec.sarif ./...
-      - name: No Go module yet, scan skips
-        if: hashFiles('go.mod') == ''
-        run: |
-          echo "No go.mod: gosec skips with success until Go code lands."
-      - name: Upload gosec SARIF
-        if: hashFiles('go.mod') != '' && hashFiles('gosec.sarif') != ''
-        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
-        with:
-          sarif_file: gosec.sarif
-          category: gosec
+  lanes:
+    name: lanes
+    needs: [changes]
+    # No timeout-minutes: the schema forbids it on reusable-call jobs. Each
+    # inner lane carries its own timeout, which bounds this job.
+    uses: eshu-hq/.github/.github/workflows/go-collector-ci.yml@4d01ab90baf5dd77c21cc1ee6bdf701332613449 # v2
+    with:
+      module: eshu-cli
+      go-version-file: go.mod
+      # Coverage floor history (eshu-hq/eshu-cli#6): first baseline 43.8%,
+      # raised per increment; increment 13 (cmd/eshu command handlers) took
+      # the total to 90.4%, floor 90.2. Raise only; never lower. Pinned
+      # equal to the Makefile by TestCoverageFloorParity.
+      coverage-floor: 90.2
+      # Pin every tool the retired lanes pinned; the reusable defaults float
+      # across tags and this move must neither downgrade nor silently
+      # upgrade a scanner.
+      golangci-lint-version: v2.12.2
+      govulncheck-version: v1.9.0
+      gosec-version: v2.30.0
+      actionlint-version: 1.7.12
+      actionlint-sha256: 8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8
+      run-lint: ${{ needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.workflow == 'true' }}
+      run-test: ${{ needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.fixtures == 'true' || needs.changes.outputs.workflow == 'true' }}
+      run-race: ${{ needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || needs.changes.outputs.gate == 'true' || needs.changes.outputs.workflow == 'true' }}
+      run-shell: ${{ needs.changes.outputs.shell == 'true' || needs.changes.outputs.workflow == 'true' }}
+      run-image: ${{ needs.changes.outputs.image == 'true' || needs.changes.outputs.workflow == 'true' }}
+      image-tag: eshu-cli:ci
+      image-context: .
+      # Build, then smoke-test the binary in the built image (the retired
+      # image lane ran the same two commands).
+      image-command: |
+        docker run --rm eshu-cli:ci --help
+        docker run --rm eshu-cli:ci version
+      # No boundary gate in this repo: the lane stays off.
+      run-boundary: false
+      run-govulncheck: ${{ needs.changes.outputs.deps == 'true' || github.event_name == 'schedule' }}
+      run-gosec: ${{ needs.changes.outputs.go == 'true' || needs.changes.outputs.deps == 'true' || github.event_name == 'schedule' }}
+      run-actionlint: ${{ needs.changes.outputs.workflow == 'true' }}
 
   ci-complete:
     name: ci-complete (required aggregator)
-    needs: [changes, lint, test, race, shell, workflow-lint, govulncheck, gosec, image]
+    needs: [changes, lanes]
     if: always()
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -376,26 +199,19 @@ jobs:
     steps:
       - name: Aggregate lane results
         run: |
-          fail=0
-          for lane in changes lint test race shell workflow-lint govulncheck gosec image; do
-            case "$lane" in
-              changes) result="${{ needs.changes.result }}" ;;
-              lint) result="${{ needs.lint.result }}" ;;
-              test) result="${{ needs.test.result }}" ;;
-              race) result="${{ needs.race.result }}" ;;
-              shell) result="${{ needs.shell.result }}" ;;
-              workflow-lint) result="${{ needs.workflow-lint.result }}" ;;
-              govulncheck) result="${{ needs.govulncheck.result }}" ;;
-              gosec) result="${{ needs.gosec.result }}" ;;
-              image) result="${{ needs.image.result }}" ;;
-            esac
-            echo "$lane: $result"
-            if [ "$result" = "failure" ] || [ "$result" = "cancelled" ]; then
-              fail=1
-            fi
-          done
-          if [ "$fail" -ne 0 ]; then
-            echo "ci-complete: a needed lane failed."
-            exit 1
-          fi
-          echo "ci-complete: all needed lanes passed (skipped lanes were not needed)."
+          python3 - <<'EOF'
+          import json, os
+          # NEEDS_JSON is toJSON(needs): {job: {"result": ..., "outputs": ...}}.
+          # Compare v["result"]: comparing whole job objects never matches
+          # (false-green), and needs.*.result is a bare ARRAY that kills
+          # green runs. Never change this shape without a seeded red proof.
+          needs = json.loads(os.environ["NEEDS_JSON"])
+          bad = {k: v.get("result") for k, v in needs.items()
+                 if isinstance(v, dict) and v.get("result") in ("failure", "cancelled")}
+          if bad:
+              print("FAIL:", bad)
+              raise SystemExit(1)
+          print("ci-complete: pass (skips allowed)")
+          EOF
+        env:
+          NEEDS_JSON: ${{ toJSON(needs) }}

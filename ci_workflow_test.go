@@ -155,6 +155,11 @@ func withInputs(body string) map[string]string {
 		if trimmed == "" || strings.HasPrefix(trimmed, "#") {
 			continue
 		}
+		// Continuation lines of a block scalar (image-command) sit deeper
+		// than the input keys.
+		if strings.HasPrefix(line, "       ") {
+			continue
+		}
 		m := withInput.FindStringSubmatch(line)
 		if m == nil {
 			break
@@ -191,7 +196,7 @@ func TestCallerCallsPinnedReusable(t *testing.T) {
 		"golangci-lint run", "golangci-lint fmt", "go test ./... -race",
 		"govulncheck ./...", "gosec -fmt", "go install github.com/rhysd/actionlint",
 		"actions/setup-go", "actions/upload-artifact", "codeql-action/upload-sarif",
-		"apt-get install", "scripts/coverage-gate.sh",
+		"apt-get install", "bash scripts/coverage-gate.sh",
 	} {
 		if strings.Contains(text, inline) {
 			t.Errorf("ci.yml still carries inline lane body %q: it lives in the reusable", inline)
