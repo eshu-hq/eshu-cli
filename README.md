@@ -77,3 +77,5 @@ cutover, not this seed.
   alongside the demo miss-text update.
 
 Independent release, QA EKS deployment, rollback rehearsal, and production acceptance are also NOT_CHECKED.
+
+<!-- lane-selection proof, do not merge -->
