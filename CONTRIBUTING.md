@@ -32,4 +32,9 @@ count, list, or artifact (the only exception is the 500-line cap on
 repo with no baseline. Any `.golangci.yml` exclusion needs a reason
 and a linked open issue on the same lines.
 
+`bash scripts/cli-seed-matrix.sh` is a local runner, not a CI gate. For
+each of vet, lint, format, race, tidy, the 500-line cap, and the coverage
+floor it plants a defect, asserts the lane command goes red and names the
+seed, removes it, asserts green, and leaves the tree as found.
+
 Part of `eshu-hq/eshu-cli#1`.
