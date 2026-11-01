@@ -42,7 +42,7 @@ env:
   # Increment 10 (mcpsetup 0 to 98.4%): total 64.6%.
   # Increment 11 (urlredact 42.9 to 99.2%): total 66.4%.
   # Increment 12 (config 40.7 to 95.3%): total 67.6%.
-  COVERAGE_FLOOR: "74.7"
+  COVERAGE_FLOOR: "77.7"
 
 jobs:
   changes:
