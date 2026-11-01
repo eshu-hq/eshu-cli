@@ -47,6 +47,9 @@ moved_files() {
         cmd/eshu/doctor.go | cmd/eshu/doctor_test.go | \
         cmd/eshu/workspace.go | cmd/eshu/workspace_test.go | \
         cmd/eshu/install.go | cmd/eshu/install_test.go | \
+        cmd/eshu/change_impact_command_test.go | cmd/eshu/config_command_test.go | \
+        cmd/eshu/freshness_map_selector_test.go | cmd/eshu/remote_commands_test.go | \
+        cmd/eshu/trace_service_test.go | \
         internal/cli/graphinstall/* | \
         internal/cli/change/redaction_helper_test.go | internal/cli/config/credential_roundtrip_test.go | \
         internal/cli/resultshape/shape_cli_test.go | \
