@@ -1,16 +1,19 @@
 # eshu-cli local CI parity.
 #
 # `make ci` runs the same commands as the `lint`, `test`, and `race`
-# lanes in .github/workflows/ci.yml. Go lanes skip with success while
-# the repo holds no go.mod, so a docs-only checkout stays green.
-# The race lane additionally writes a coverprofile, posts per-package
-# totals, and enforces COVERAGE_FLOOR via scripts/coverage-gate.sh,
-# the same script CI runs. Part of eshu-hq/eshu-cli#1 (#6 gates race).
+# lanes that .github/workflows/ci.yml takes from the pinned
+# eshu-hq/.github go-collector-ci reusable. Go lanes skip with success
+# while the repo holds no go.mod, so a docs-only checkout stays green.
+# `make race` additionally writes a coverprofile, posts per-package
+# totals, and enforces COVERAGE_FLOOR via scripts/coverage-gate.sh; the
+# CI race lane enforces the same floor from the same total.
+# Part of eshu-hq/eshu-cli#1 (#6 gates race).
 
 GO_FILES := $(shell git ls-files '*.go' 2>/dev/null)
 HAS_GO_MOD := $(shell test -f go.mod && echo yes)
 
-# First measured baseline, mirrors COVERAGE_FLOOR in ci.yml (#6).
+# Mirrors the coverage-floor input in ci.yml (#6); ci_workflow_test.go
+# fails when the two differ.
 COVERAGE_FLOOR ?= 90.2
 COVERAGE_PROFILE ?= coverage-race.out
 

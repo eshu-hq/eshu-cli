@@ -1,7 +1,8 @@
 #!/bin/bash
 # Summarize a Go coverprofile per package and enforce the coverage floor.
-# Shared by the CI race lane (.github/workflows/ci.yml) and `make race`
-# so local and CI parity is one implementation, not two copies.
+# Used by `make race`. The CI race lane (the pinned eshu-hq/.github
+# reusable called from .github/workflows/ci.yml) enforces the same floor
+# from the same `go tool cover -func` total.
 # Part of eshu-hq/eshu-cli#6.
 # Usage: scripts/coverage-gate.sh <coverprofile> <floor-percent> [summary-file]
 # Exits 1 when the total statements coverage is below the floor.
