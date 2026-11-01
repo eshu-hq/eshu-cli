@@ -2,9 +2,15 @@
 
 ## CI in one minute
 
-`make ci` is the whole local contract. It runs the `lint`, `test`, and
-`race` lane commands from `.github/workflows/ci.yml`. Go lanes skip
-with success while the repo holds no `go.mod`.
+`make ci` is the local contract for the `lint`, `test`, and `race`
+lanes. `.github/workflows/ci.yml` is a thin caller: its `lanes` job runs
+the lane bodies from the pinned `eshu-hq/.github` `go-collector-ci.yml`
+reusable (shown as `lanes / <lane>`), and `ci-complete (required
+aggregator)` is the only context the repo ruleset requires. Do not
+rename it. Tool pins, the coverage floor, and every lane gate are
+inputs in `ci.yml`; `ci_workflow_test.go` pins them, and the floor must
+equal `COVERAGE_FLOOR` in the `Makefile`. The accepted differences from
+the old inline lanes are listed in the `ci.yml` header.
 
 Push and PR runs pick lanes by changed paths (the `changes` job):
 
@@ -17,7 +23,7 @@ Push and PR runs pick lanes by changed paths (the `changes` job):
 | Shell scripts (`**/*.sh`) | `shell` only |
 | Gate inputs (`scripts/coverage-gate.sh`, `Makefile`) | `race` (the script additionally matches `shell`) |
 | `Dockerfile`, `.dockerignore` | `image` (lands with the file) |
-| `.github/workflows/**` | `workflow-lint` plus `lint`, `test`, `race` |
+| `.github/workflows/**` | `actionlint` plus `lint`, `test`, `race`, `shell`, `image` |
 | Weekly schedule (Mondays 06:00 UTC) | `govulncheck`, `gosec` |
 
 Two rules never change: no gate compares the tree against a committed
