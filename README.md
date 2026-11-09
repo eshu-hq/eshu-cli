@@ -1,79 +1,91 @@
 # eshu-cli
 
-**Eshu CLI user commands and API clients, seeded as a preparation-only contract surface. Pre-release: holds no cutover authority until its reviewed cutover.**
+Status: pre-release. You can build and run the `eshu` command today.
+Some commands still point you at the core binary. That's expected, not a
+bug.
 
-Refs `eshu-hq/eshu#8874`, part of `eshu-hq/eshu#6707`.
+`eshu-cli` is how you talk to Eshu from a terminal. Eshu maps code and
+cloud systems into a graph (things and how they connect), and most of us
+would rather type `eshu list` than hand-write HTTP calls. So that's the
+deal: you run a command, we call the Eshu API, and we print JSON you can
+read or pipe into something else. This repo holds the commands and their
+API clients. It doesn't store the graph and it doesn't run the server.
+That work stays in the core.
 
-## What lives here
+```mermaid
+flowchart LR
+    U[You in a terminal] -->|eshu list, eshu find, ...| C[eshu-cli<br/>this repo]
+    C -->|HTTP| A[Eshu API / core]
+    A --> G[(Graph and durable stores)]
+```
 
-Day-one seed only: the versioned contract `eshu-cli` will publish, copied verbatim from `eshu` so the destination starts byte-identical to the reviewed source.
+Put simply: your keystrokes become an HTTP call, and the reply becomes
+output on your screen. Query commands only ever talk over HTTP. A few
+setup-flavoured commands (`install`, `index`, `config set`,
+`mcp setup --write`) work on local files and binaries instead, and
+[Concepts: boundaries](docs/concepts/boundaries.md) draws that line exactly.
 
-- `docs/contract/8874-eshu-cli-contract.md`: supported core/CLI version basis, credential handling, demo asset split, and the `local-host` entrypoint boundary.
-- `docs/contract/cli_extraction_inventory.md`: command/flag/env/output/exit census classifying every visible command as EXTRACT, RETAIN, RUNTIME, or STUB.
-- `docs/contract/PROVENANCE.md`: source SHA, per-file hashes, what stays in `eshu`, and the pinning tests that guard the contract.
-- `scripts/check-parity.sh` plus the `parity` CI lane: re-verify the verbatim files against `docs/contract/PARITY.sha256`.
+## Is this the repo you want?
 
-## Tier-1 population (S3)
+Use it to query Eshu from a terminal or script, to wire an AI editor up
+to Eshu with `eshu mcp setup`, or to work on command output, flags, and
+exit codes.
 
-The first population carries the Tier-1 set from the population-scope
-verdict (`eshu-hq/eshu`
-`docs/internal/evidence/8874-cli-population-scope-verdict.md`): the
-pure-remote/mechanical commands `analyze`, `find`, `query`, `list`/`ls`,
-`stats`, `index-status`, `change`, `map`, `trace`, `freshness`,
-`playbooks`, `ecosystem overview`, `completion`, `help`, `version`,
-`neo4j` guidance, the `index` binary-discovery entrypoint, and the
-pre-existing removed-command STUBs — plus E3 STUBs for every Tier-2/Tier-3
-family, all pointing at the core binary.
+Don't use it to run the server (that's the core or `eshu-api`), for
+admin repair work (stub commands will send you to the core binary), or
+as a one-command full stack (see
+[eshu-deploy](https://github.com/eshu-hq/eshu-deploy)).
 
-- `cmd/eshu/`: the Tier-1 cobra tree (`doc.go` describes the scope).
-- `internal/`: the small-closure libraries the tree owns (`apierr`,
-  `trace`, `change`, `entitymap`, `freshness`, `playbooks`, `config`,
-  `reposelector`, `buildinfo`; `envregistry` was retired in Tier-2),
-  pinned to the core commit in `docs/tier1-pin.md` under the
-  moved-package freeze.
-- Proof: `scripts/check-census.sh` (closures, pins, credentials),
-  `scripts/check-nofork.sh` (freeze), `scripts/check-tier1-parity.sh`
-  with `testdata/parity/goldens/` (help bytes, `--json` envelopes,
-  exit codes 0-6), and `TestCredentialProfileRoundTrip` plus the
-  redaction canaries in `go test ./...`.
+## Quickstart
 
-In-tree removal in `eshu` still waits for production acceptance.
+You'll need Go 1.26.10 (see `go.mod`).
 
-## Tier-2 population
+```bash
+go build -o /tmp/eshu ./cmd/eshu
+/tmp/eshu version
+export ESHU_SERVICE_URL=http://localhost:8080
+export ESHU_API_KEY='change-me'
+/tmp/eshu list
+```
 
-The second population carries the Tier-2 set from the same verdict: thin
-clients for `report` (digest plus capture/validate through the S4
-endpoints), `service-report` (compose), `answer-quality-scorecard`
-(score), `config` (validate against the published client table),
-`component` inventory/diagnostics, and `mcp`/`m` setup (remote tools/list
-decoded via `wirecontract.ToolDefinition`). `investigation export` stays
-stubbed: its packet build is truth assembly with no build endpoint.
-The published `eshu-sdk/wirecontract` module is pinned in `go.mod`
-(`docs/tier2-pin.md`; Refs eshu-hq/eshu#9631). New verbatim copies and
-their recorded deltas live in `docs/tier2-pin.md`; S4 fixtures and the
-extended parity cases live under `testdata/parity/`.
+`eshu version` prints one line, `Eshu <version>` (source builds report
+`dev`). If that works, the binary runs. `eshu list` then calls
+`GET /api/v0/repositories` against your service and prints the reply, so
+a JSON response there means you're connected. Run `/tmp/eshu --help`
+any time you want the full command list.
 
-## Open questions (decided)
+## Documentation
 
-Decided by the arbiter verdict recorded at
-`eshu-hq/eshu` `docs/internal/evidence/8874-cli-open-questions-verdict.md`
-(landed via `eshu-hq/eshu#9504`); each decision blocks the reviewed
-cutover, not this seed.
+| Guide | What you will find |
+| --- | --- |
+| [Documentation index](docs/README.md) | The map of every page below |
+| [Getting started](docs/getting-started/README.md) | Build the binary and answer your first command |
+| [Guides](docs/guides/README.md) | Operate, credentials and profiles, and troubleshooting, step by step |
+| [Concepts](docs/concepts/README.md) | How a command becomes an HTTP call, and which commands touch local files instead |
+| [Configuration reference](docs/reference/configuration.md) | Flags, env vars, profiles, saved settings, and exit codes |
+| [Architecture](docs/architecture/README.md) | Place in Eshu, components, and stack |
+| [Diagrams](docs/diagrams/README.md) | Every diagram, with captions and text versions |
+| [Release](docs/release.md) | Versioned binaries, checksums, and upgrades |
+| [CLI contract](docs/contract/8874-eshu-cli-contract.md) | Supported version pairs, credentials, and boundaries |
+| [Command inventory](docs/contract/cli_extraction_inventory.md) | Every command, flag, and exit behaviour, classified |
+| Maintainer history: [provenance](docs/contract/PROVENANCE.md) and the pin notes (`docs/install-pin.md`, `docs/tier1-pin.md`, `docs/tier2-pin.md`, `docs/tier3-pin.md`) | Source pins and the extraction record for each tier |
 
-- Version pairs and credentials: one tested pair at the first
-  independent release, recorded only in the eshu-deploy compatibility
-  matrix; no runtime version enforcement on day one; the
-  `~/.eshu/.env` (0600) filesystem contract moves with the CLI.
-  Vulnerability-response ownership (`SECURITY.md` here) is named
-  before the first independent release.
-- Demo distribution: the question manifest embeds in `eshu-cli`
-  (`//go:embed`, on-disk file wins, CI byte-diff against the core
-  spec); the Compose overlay stays a deploy-repo checkout owned by
-  `#8871`.
-- `local-host`: `eshu local-host` in the core binary, protocol
-  `local-host/v1`, with a redacted v1 discovery record (never
-  `OwnerRecord`); `graph`/`watch`/`w` stay RETAIN until v1 ships,
-  then STUB entries (exit 1) are the sanctioned parity exception
-  alongside the demo miss-text update.
+## Related repos
 
-Independent release, QA EKS deployment, rollback rehearsal, and production acceptance are also NOT_CHECKED.
+`eshu` holds the core. `eshu-api` is the HTTP front door, `eshu-mcp`
+serves tools to AI assistants, and
+[eshu-deploy](https://github.com/eshu-hq/eshu-deploy) runs the full
+stack.
+
+## Development
+
+`make ci` runs the same checks as CI (lint, test, race). Go files stay
+at or under 500 lines.
+
+## Contributing, security, and license
+
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the local checks and
+[SECURITY.md](SECURITY.md) if you need to report a vulnerability (please
+don't use a public issue). There's no `LICENSE` file; sources carry
+`SPDX-License-Identifier: MIT`. And please never commit credentials or
+`.env` files.
