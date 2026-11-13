@@ -8,9 +8,9 @@
 #   docker build -t eshu-cli:dev .
 #   docker run --rm eshu-cli:dev --help
 
-ARG GO_VERSION=1.26.10
+ARG GO_VERSION=1.26.11
 
-FROM golang:${GO_VERSION}-bookworm AS build
+FROM golang:${GO_VERSION}-bookworm@sha256:dc40a13b61304647ed7e5d581d246b86413dfc29d63c6d018310feb93cd98fc0 AS build
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
