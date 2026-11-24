@@ -28,7 +28,7 @@ setup-flavoured commands (`install`, `index`, `config set`,
 ## Is this the repo you want?
 
 Use it to query Eshu from a terminal or script, to wire an AI editor up
-to Eshu with `eshu mcp setup`, or to work on command output, flags, and
+to Eshu with `eshu mcp setup` (Claude Code, Cursor, VS Code, or Codex), or to work on command output, flags, and
 exit codes.
 
 Don't use it to run the server (that's the core or `eshu-api`), for
@@ -38,7 +38,7 @@ as a one-command full stack (see
 
 ## Quickstart
 
-You'll need Go 1.26.10 (see `go.mod`).
+You'll need Go 1.26.11 (see `go.mod`).
 
 ```bash
 go build -o /tmp/eshu ./cmd/eshu
@@ -72,10 +72,13 @@ any time you want the full command list.
 
 ## Related repos
 
-`eshu` holds the core. `eshu-api` is the HTTP front door, `eshu-mcp`
-serves tools to AI assistants, and
-[eshu-deploy](https://github.com/eshu-hq/eshu-deploy) runs the full
-stack.
+[eshu](https://github.com/eshu-hq/eshu) holds the core.
+[eshu-api](https://github.com/eshu-hq/eshu-api) is the HTTP front door,
+[eshu-mcp](https://github.com/eshu-hq/eshu-mcp) serves tools to AI
+assistants, and [eshu-deploy](https://github.com/eshu-hq/eshu-deploy)
+runs the full stack. New to Eshu? Start at
+[Start Here](https://github.com/eshu-hq/eshu/blob/main/docs/public/start-here.md) or browse the 31-repo
+[Repository Map](https://github.com/eshu-hq/eshu/blob/main/REPOSITORIES.md).
 
 ## Development
 
